@@ -194,7 +194,7 @@
             var w = R.int(2, 10) * 5, h = R.int(2, 10) * 5, x0 = R.int(0, 50), y0 = R.int(0, 50);
             var tri = Math.random() < 0.5, A = tri ? w * h / 2 : w * h;
             var pts = tri ? [[x0, y0], [x0 + w, y0], [x0, y0 + h]] : [[x0, y0], [x0 + w, y0], [x0 + w, y0 + h], [x0, y0 + h]];
-            return ['依序連接各點 (E, N)：' + pts.map(function (p) { return '(' + p[0] + ', ' + p[1] + ')'; }).join('、') + '，圍成的面積為何？（m）', O(A + ' m²', [2 * A + ' m²', A / 2 + ' m²', (w + h) * 2 + ' m²']), '坐標法 2A = Σ Ni(Ei+1 − Ei−1)；此圖形是' + (tri ? '直角三角形 ½ × ' + w + ' × ' + h : '矩形 ' + w + ' × ' + h) + ' = ' + A + ' m²。'];
+            return ['依序連接各點 (E, N)：' + pts.map(function (p) { return '(' + p[0] + ', ' + p[1] + ')'; }).join('、') + '，圍成的面積為何？（m）', O(A + ' m²', [2 * A + ' m²', A / 2 + ' m²', (w + h) * 2 + ' m²']), '坐標法 2A = Σ Ni(Ei+1 − Ei−1)；此圖形是' + (tri ? '直角三角形 ½ × ' + w + ' × ' + h : '矩形 ' + w + ' × ' + h) + ' = ' + A + ' m²。', QF.poly(pts)];
           } },
           { t: '高程放樣', g: function (R) {
             var BM = R.int(20000, 80000) / 1000, BS = R.int(800, 2000) / 1000, HI = BM + BS, des = HI - R.int(500, 2800) / 1000, read = HI - des;
