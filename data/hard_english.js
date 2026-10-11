@@ -44,3 +44,32 @@ addHard('eng', 3, [
   ['動詞用法', 'On the way home, she stopped ___ a photo of the beautiful sunset.', ['to take', 'taking', 'take', 'took'], '停下來「去做」另一件事 → stop to V。'],
   ['動詞用法', 'She is used to ___ to school, but last year she used to ___ the bus.', ['walking；take', 'walk；taking', 'walking；taking', 'walk；take'], 'be used to + Ving（習慣於）；used to + VR（過去經常）。']
 ]);
+
+/* ===== v1.7 追加（只能接在後面） ===== */
+addHard('eng', 0, [
+  ['情境字彙', 'Please ___ your seat on the bus to elderly people.', ['offer', 'oversleep', 'chase', 'whisper'], 'offer 提供、讓出。'],
+  ['情境字彙', 'It took the patient a long time to ___ from the serious disease.', ['recover', 'remove', 'reply', 'return'], 'recover from 從……康復（B1L3）。'],
+  ['情境字彙', 'The puppy was so ___ by the thunder that it hid under the bed.', ['terrified', 'satisfied', 'determined', 'interested'], 'terrified 受到驚嚇的（B1L5）。'],
+  ['情境字彙', 'You should set your alarm clock ___ advance so you won\'t be late.', ['in', 'on', 'at', 'by'], 'in advance 事先（B1L4）。'],
+  ['對話', 'A: "Thank you so much for helping me move." B: "___"', ['Don\'t mention it.', 'Help yourself.', 'Never say never.', 'I\'m afraid so.'], 'Don\'t mention it. = 不客氣。'],
+  ['短文閱讀', '閱讀：「The boy drew pictures on the walls and was often punished. One day, an artist saw his drawings and encouraged him to keep going. Years later, he became a famous painter.」本文主旨最接近：', ['With encouragement, hidden talent can be discovered.', 'Drawing on walls is always wrong.', 'Artists should not help children.', 'Fame is more important than talent.'], 'B1L6 You Can Do It!：天分被發掘、相信自己做得到。']
+]);
+addHard('eng', 1, [
+  ['情境字彙', 'This coffee tastes too ___; could you pass me the sugar?', ['bitter', 'ideal', 'medical', 'local'], 'bitter 苦的（B2L6）。'],
+  ['情境字彙', 'The volunteers ___ dozens of animals from the flooded village.', ['rescued', 'contained', 'produced', 'shrank'], 'rescue 拯救（B2L6）。'],
+  ['情境字彙', 'Rumors ___ quickly on social media, so check the facts first.', ['spread', 'fade', 'occur', 'float'], 'spread 傳開（B2L2）。'],
+  ['情境字彙', 'Turning waste into paper is an ___ way to protect the environment.', ['ideal', 'awful', 'ashamed', 'bitter'], 'ideal 理想的（B2L6）。'],
+  ['情境字彙', 'When you travel ___, it is important to learn about local customs.', ['abroad', 'instead', 'daily', 'indeed'], 'abroad 在／到國外（B2L4）。'],
+  ['短文閱讀', '閱讀：「Dear John, we have been together for years, but you take all my attention. I no longer talk with my family at dinner. It\'s time to say goodbye.」這封信裡的 John 最可能指：', ['the writer\'s smartphone', 'the writer\'s brother', 'a teacher', 'a pet dog'], 'B2L1 Goodbye, John：以分手信形式向手機告別，反思手機成癮。'],
+  ['短文閱讀', '閱讀：「A cracked pot leaked water every day and felt ashamed. But the owner showed it the flowers growing along its side of the path.」這個故事想說明：', ['Flaws can sometimes become strengths.', 'Broken things should be thrown away.', 'Water is precious.', 'Flowers need no water.'], 'B2L3 Making the Most of Our Flaws：缺點也能變成優點。']
+]);
+addHard('eng', 3, [
+  ['分裂句', 'It was in Tainan ___ I first tried beef noodles.', ['that', 'which', 'where', 'what'], '分裂句 It is/was + 強調部分 + that…'],
+  ['倒裝句', 'Hardly had he arrived at the station ___ the train left.', ['when', 'than', 'until', 'so'], 'Hardly / Scarcely… when…（一……就……）；No sooner… than…'],
+  ['倒裝句', 'So tired ___ that he fell asleep during the movie.', ['was he', 'he was', 'he is', 'did he'], 'So + adj. 放句首要倒裝：So tired was he that…'],
+  ['假設語氣', 'I wish I ___ fly like a bird.', ['could', 'can', 'will', 'have'], 'wish + 過去式表示與現在事實相反的願望。'],
+  ['假設語氣', 'The teacher suggested that he ___ more careful.', ['be', 'is', 'was', 'being'], 'suggest that + S + (should) + 原形動詞。'],
+  ['主動詞一致', 'Neither of the two answers ___ correct.', ['is', 'are', 'were', 'be'], 'Neither of + 複數名詞 → 單數動詞（正式用法）。'],
+  ['主動詞一致', 'He is the only one of the students who ___ passed the test.', ['has', 'have', 'having', 'to have'], 'the only one of… who → 先行詞是 the only one（單數）。'],
+  ['關係詞', 'The novel, ___ was written in 1950, is still popular today.', ['which', 'that', 'what', 'who'], '非限定用法（逗號後）不可用 that。']
+]);

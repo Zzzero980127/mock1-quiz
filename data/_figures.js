@@ -135,6 +135,35 @@ window.QF = (function () {
       pts.forEach(function (p, i) { var c = 'ABCDEF'.charAt(i); s +=C(X(p[0]), Y(p[1]), 3, 'dot') + T(X(p[0]) + 6, Y(p[1]) - 6, c + '(' + p[0] + ', ' + p[1] + ')', 'start', 'small'); });
       return svg(360, 225, s);
     },
+    // 物體靜置斜面
+    incline: function (ang, W, mu) {
+      var Hh = 130, base = Hh / Math.tan(rad(ang)), x0 = 290 - base, g = 205, top = g - Hh;
+      if (x0 < 20) { base = 270; Hh = base * Math.tan(rad(ang)); x0 = 20; top = g - Hh; }
+      var s = hatchH(10, 335, g) + P('M' + r1(x0) + ',' + g + ' L290,' + g + ' L290,' + r1(top) + ' z', 'fill');
+      var mx = x0 + base * 0.55, my = g - Hh * 0.55;
+      s += '<g transform="rotate(' + (-ang) + ' ' + r1(mx) + ' ' + r1(my) + ')">' + Rect(mx - 24, my - 28, 48, 28, 'acc fill2') + '</g>';
+      s += A(mx, my - 14, mx, my + 34) + T(mx + 6, my + 34, W + ' N', 'start') + T(x0 + 36, g - 6, ang + '°') + T(20, 24, 'μs = ' + mu, 'start');
+      return svg(345, 220, s);
+    },
+    // 簡支梁：兩個集中力
+    beam2: function (L0, P1, a1, P2, a2) {
+      var x1 = 40, x2 = 300, y = 120, sx = (x2 - x1) / L0, p1 = x1 + a1 * sx, p2 = x1 + a2 * sx;
+      var s = Rect(x1, y, x2 - x1, 9, 'fill2 acc') + P('M' + x1 + ',' + (y + 9) + ' l-10,18 l20,0 z', '') + hatchH(x1 - 16, x1 + 18, y + 27) + C(x2, y + 17, 8, '') + hatchH(x2 - 16, x2 + 18, y + 25);
+      s += A(p1, y - 50, p1, y - 2, 'acc') + T(p1, y - 56, P1 + ' kN') + A(p2, y - 50, p2, y - 2, 'acc') + T(p2, y - 56, P2 + ' kN');
+      s += T(x1, y + 52, 'A') + T(x2, y + 52, 'B');
+      [[x1, p1, a1], [p1, p2, a2 - a1], [p2, x2, L0 - a2]].forEach(function (seg) { s += L(seg[0], y + 62, seg[1], y + 62, 'thin') + L(seg[1], y + 56, seg[1], y + 68, 'thin') + T((seg[0] + seg[1]) / 2, y + 76, seg[2] + ' m'); });
+      return svg(345, 205, s);
+    },
+    // 三力平衡（夾角 90°、120°、150°）
+    threeForce: function (F1) {
+      var cx = 175, cy = 115, Lh = 85, s = C(cx, cy, 4, 'dot');
+      var dirs = [[0, F1 + ' N（F1）'], [150, 'F2 = ?'], [-120, 'F3 = ?']];
+      dirs.forEach(function (d) { var a = rad(d[0]); var ex = cx + Lh * Math.cos(a), ey = cy - Lh * Math.sin(a); s += A(cx, cy, ex, ey, 'acc');
+        // 水平向右的力把標籤放在箭頭右邊，其他放在箭頭外側
+        s += d[0] === 0 ? T(ex + 8, ey + 4, d[1], 'start') : T(cx + (Lh + 22) * Math.cos(a), cy - (Lh + 14) * Math.sin(a) + 4, d[1]); });
+      s += T(cx + 28, cy - 34, '150°', 'start', 'small') + T(cx - 52, cy + 36, '90°', 'start', 'small') + T(cx + 18, cy + 34, '120°', 'start', 'small');
+      return svg(350, 230, s);
+    },
     // 拋物線落下（無人機）
     drone: function (D0, hgt) {
       var g = 200, x0 = 60, top = 40, sc = 230 / D0, s = hatchH(20, 330, g) + L(x0, g, x0, top, 'dash');
