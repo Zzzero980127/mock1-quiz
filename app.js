@@ -14,6 +14,11 @@
 
   // ---------- 更新日誌（新版本加在最上面） ----------
   var CHANGELOG = [
+    { v: '2.7', date: '2026-10-12', items: [
+      '計算題數字變好算：每次出題會多試幾組數字，挑正解和詳解過程最乾淨的那組（少出 24.53 這種數字）',
+      '摩擦題（疊放斜繩、斜面推力、斜拉繩）加入 53°、μ = 0.5 等好算的組合',
+      '作答紀錄不受影響'
+    ] },
     { v: '2.6', date: '2026-10-12', items: [
       '製圖新增變化圖題型：立體由小方塊隨機堆成，每次形狀都不同',
       '看立體圖選前視／俯視／右側視圖、看俯視圖數字選視圖、看三視圖選立體圖（干擾選項只差一兩個方塊）',
@@ -175,8 +180,33 @@
   function fmt(s) { return esc(s).replace(/([A-Za-z]{1,2})→/g, '<span class="vec">$1</span>'); }
 
   // 由模板做出一題（產生器每次都是新數字）
+  // 數字醜不醜：正解與詳解裡「題目沒給的」數字，小數超過 1 位就扣分（正解扣比較重）
+  function ugly(raw) {
+    var given = {};
+    (String(raw[0]).match(/\d+(?:\.\d+)?/g) || []).forEach(function (x) { given[x] = 1; });
+    function sc(s, w) {
+      var p = 0;
+      (String(s).match(/\d+\.\d+/g) || []).forEach(function (x) {
+        if (given[x]) return;
+        var d = x.split('.')[1].length;
+        if (d > 1) p += (d - 1) * w;
+      });
+      return p;
+    }
+    return sc(raw[1] && raw[1][0], 5) + sc(raw[2], 1);
+  }
+  // 產生器多試幾次，挑數字最好算的一組（考試不會出 24.53 這種數字）
+  function gen(t) {
+    var best = null, bs = Infinity;
+    for (var k = 0; k < 40; k++) {
+      var raw = t.item.g(R), s = ugly(raw);
+      if (s < bs) { best = raw; bs = s; }
+      if (s === 0) break;
+    }
+    return best;
+  }
   function build(t) {
-    var raw = t.kind === 'g' ? t.item.g(R) : t.item.slice(1);
+    var raw = t.kind === 'g' ? gen(t) : t.item.slice(1);
     var q = QH.clean(String(raw[0])), opts = QH.fill(raw[1]).slice(0, 4), exp = QH.clean(String(raw[2] || ''));
     var order = shuffle(opts.map(function (_, i) { return i; }));
     return {

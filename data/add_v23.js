@@ -81,7 +81,7 @@
 
   /* 兩塊疊放：繩子有／無／水平／斜向上 */
   function twoRope(easy) {
-    var WA = pick([10, 20, 30, 40]), WB = pick([20, 30, 40, 50]), m1 = pick([0.2, 0.25, 0.3]), m2 = pick([0.3, 0.4, 0.5]);
+    var WA = pick([10, 20, 30, 40]), WB = pick([20, 30, 40, 50]), m1 = pick([0.2, 0.25, 0.5]), m2 = pick([0.3, 0.4, 0.5]);
     var rope = easy ? pick(['h', 'none']) : pick(['h', 'none', 'up', 'up']), ang = pick([37, 53]), o = { W: [WA, WB], mu: [m1, m2], rope: rope, ang: ang, pull: 1 };
     var f1 = m1 * WA, base = '如圖，A 疊在 B 上，' + wT(o) + '，' + muT(o) + '。';
     if (rope === 'none') {
@@ -121,7 +121,7 @@
 
   /* 三塊疊放：拉中層或下層、繩子水平或斜向上 */
   function three() {
-    var WA = pick([10, 20, 30]), WB = pick([20, 30, 40]), WC = pick([40, 50, 60]), m1 = pick([0.1, 0.2]), m2 = pick([0.2, 0.3]), m3 = pick([0.3, 0.4]);
+    var WA = pick([10, 20, 30]), WB = pick([20, 30, 40]), WC = pick([40, 50, 60]), m1 = pick([0.1, 0.2, 0.5]), m2 = pick([0.2, 0.3]), m3 = pick([0.3, 0.4]);
     var pull = pick([1, 2]), rope = pick(['h', 'up']), ang = pick([37, 53]), tr = TRIG[ang], o = { W: [WA, WB, WC], mu: [m1, m2, m3], rope: rope, ang: ang, pull: pull };
     var N1 = WA, Tn = 0, pre = '';
     if (rope === 'up') { Tn = m1 * WA / (tr[1] + m1 * tr[0]); N1 = WA - Tn * tr[0]; pre = '斜繩：T cos' + ang + '° = μ₁N₁、N₁ + T sin' + ang + '° = ' + WA + ' → T = ' + N(Tn) + '、N₁ = ' + N(N1) + '（比 WA 小）。\n'; }
@@ -132,6 +132,7 @@
       return [q, O(N(Ptot), [N(f1 + m3 * (N1 + WB + WC)), N(m2 * (N1 + WB)), N(f1 + m2 * WB)], more(Ptot)),
         pre + 'B 上面受 A 的摩擦 μ₁N₁ = ' + N(f1) + '，下面受 C 的摩擦 μ₂(N₁ + WB) = ' + N(m2 * (N1 + WB)) + '。\nC 與地面最大摩擦 ' + m3 + '×' + D(N1 + WB + WC, 2) + ' = ' + N(m3 * (N1 + WB + WC)) + ' 比 ' + N(m2 * (N1 + WB)) + ' 大，C 不動。\nP = ' + N(Ptot) + '。', VF.stack(o)];
     }
+    if (f1 >= m2 * (N1 + WB)) return three();
     Ptot = f1 + m3 * (N1 + WB + WC);
     return [q, O(N(Ptot), [N(m2 * (N1 + WB) + m3 * (N1 + WB + WC)), N(m3 * (N1 + WB + WC)), N(f1 + m2 * (N1 + WB) + m3 * (N1 + WB + WC))], more(Ptot)),
       pre + '拉 C 時，B 夾在中間：C 能帶動 B 的摩擦最多 ' + N(m2 * (N1 + WB)) + '，A 拉住 B 的摩擦最多 ' + N(f1) + '，前者較大 → B 跟著 C 一起動，B、C 間不滑。\n所以只有 A–B 面和地面在滑：P = μ₁N₁ + μ₃(N₁ + WB + WC) = ' + N(f1) + ' + ' + N(m3 * (N1 + WB + WC)) + ' = ' + N(Ptot) + '。', VF.stack(o)];
@@ -139,7 +140,7 @@
 
   /* 斜面：水平推力 P 的範圍 */
   function inclineHP() {
-    var th = pick([30, 37]), tr = TRIG[th], W = pick([50, 100, 150, 200]), mu = pick([0.1, 0.2, 0.25]);
+    var th = pick([30, 37, 53]), tr = TRIG[th], W = pick([50, 80, 100, 160, 200]), mu = pick([0.1, 0.2, 0.25, 0.5]);
     var lo = W * (tr[0] - mu * tr[1]) / (tr[1] + mu * tr[0]), hi = W * (tr[0] + mu * tr[1]) / (tr[1] - mu * tr[0]);
     return ['如圖，重 ' + W + ' N 的物體放在 ' + th + '° 斜面上（μs = ' + mu + '），以水平推力 P 使物體保持靜止，P 的範圍為何？（sin' + th + '° = ' + tr[0] + '、cos' + th + '° = ' + tr[1] + '）',
       O(D(lo, 2) + ' N ≤ P ≤ ' + D(hi, 2) + ' N', [D(W * (tr[0] - mu * tr[1]), 2) + ' N ≤ P ≤ ' + D(W * (tr[0] + mu * tr[1]), 2) + ' N', D(lo, 2) + ' N ≤ P ≤ ' + D(W * (tr[0] + mu * tr[1]) / tr[1], 2) + ' N', '0 ≤ P ≤ ' + D(hi, 2) + ' N']),
@@ -148,7 +149,7 @@
 
   /* 斜面：斜拉繩（與斜面夾 α）拉上坡 */
   function inclineRope() {
-    var c = pick([[30, 37], [37, 30]]), th = c[0], al = c[1], t1 = TRIG[th], t2 = TRIG[al], W = pick([50, 100, 200]), mu = pick([0.2, 0.25, 0.3]);
+    var c = pick([[30, 37], [37, 30], [37, 53], [53, 37]]), th = c[0], al = c[1], t1 = TRIG[th], t2 = TRIG[al], W = pick([50, 100, 200]), mu = pick([0.2, 0.25, 0.5]);
     var Tn = W * (t1[0] + mu * t1[1]) / (t2[1] + mu * t2[0]);
     return ['如圖，重 ' + W + ' N 的物體放在 ' + th + '° 斜面上（μs = ' + mu + '），以一條與斜面夾 ' + al + '° 的繩子往上坡拉，使物體恰要向上滑，繩子張力 T 為何？（sin' + th + '° = ' + t1[0] + '、cos' + th + '° = ' + t1[1] + '；sin' + al + '° = ' + t2[0] + '、cos' + al + '° = ' + t2[1] + '）',
       O(N(Tn), [N(W * (t1[0] + mu * t1[1])), N(W * (t1[0] + mu * t1[1]) / t2[1]), N(W * (t1[0] + mu * t1[1]) / (t2[1] - mu * t2[0]))], more(Tn)),
