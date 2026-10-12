@@ -106,6 +106,14 @@ details.lg summary{cursor:pointer;display:flex;flex-wrap:wrap;gap:6px;align-item
 .ugrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:14px}
 .ucell{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:.88rem}
 .mini.wide{width:100%;height:7px;margin:4px 0}
+details.sg{border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin-bottom:10px}
+details.sg>summary{cursor:pointer;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:1.02rem}
+details.sg>summary .mini.wide{width:120px;margin:0}
+details.ug{border-top:1px solid var(--line);padding:6px 0 6px 10px}
+details.ug>summary{cursor:pointer;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.92rem}
+details.ug>summary .uname{min-width:180px}
+details.ug>summary .mini.wide{width:90px;margin:0}
+details.ug table{margin:6px 0 2px}
 </style>
 </head>
 <body>
@@ -167,7 +175,7 @@ details.lg summary{cursor:pointer;display:flex;flex-wrap:wrap;gap:6px;align-item
 
     <div class="card">
       <div class="row" style="justify-content:space-between">
-        <b>弱點分析（依主題，越上面越不熟）</b>
+        <b>弱點分析（各科分開，單元越上面越不熟）</b>
         <span class="row">
           <button class="btn small" id="weakBtn">一鍵練最弱 5 個主題</button>
           <button class="btn small ghost" id="logBtn">錯題紀錄</button>
@@ -223,22 +231,23 @@ details.lg summary{cursor:pointer;display:flex;flex-wrap:wrap;gap:6px;align-item
 </div>
 
 <script>window.QUIZ_DATA = [];</script>
-<script src="data/_helpers.js?v=14"></script>
-<script src="data/_figures.js?v=14"></script>
-<script src="data/chinese.js?v=14"></script>
-<script src="data/english.js?v=14"></script>
-<script src="data/math.js?v=14"></script>
-<script src="data/mechanics.js?v=14"></script>
-<script src="data/materials.js?v=14"></script>
-<script src="data/surveying.js?v=14"></script>
-<script src="data/drawing.js?v=14"></script>
-<script src="data/hard_chinese.js?v=14"></script>
-<script src="data/hard_english.js?v=14"></script>
-<script src="data/hard_math.js?v=14"></script>
-<script src="data/hard_mechanics.js?v=14"></script>
-<script src="data/hard_materials.js?v=14"></script>
-<script src="data/hard_surveying.js?v=14"></script>
-<script src="data/hard_drawing.js?v=14"></script>
-<script src="app.js?v=14"></script>
+<script src="data/_helpers.js?v=15"></script>
+<script src="data/_figures.js?v=15"></script>
+<script src="data/chinese.js?v=15"></script>
+<script src="data/english.js?v=15"></script>
+<script src="data/math.js?v=15"></script>
+<script src="data/mechanics.js?v=15"></script>
+<script src="data/materials.js?v=15"></script>
+<script src="data/surveying.js?v=15"></script>
+<script src="data/drawing.js?v=15"></script>
+<script src="data/hard_chinese.js?v=15"></script>
+<script src="data/hard_english.js?v=15"></script>
+<script src="data/hard_math.js?v=15"></script>
+<script src="data/hard_mechanics.js?v=15"></script>
+<script src="data/hard_materials.js?v=15"></script>
+<script src="data/hard_surveying.js?v=15"></script>
+<script src="data/hard_drawing.js?v=15"></script>
+<script src="data/past_110_111.js?v=15"></script>
+<script src="app.js?v=15"></script>
 </body>
 </html>

@@ -14,6 +14,13 @@
 
   // ---------- 更新日誌（新版本加在最上面） ----------
   var CHANGELOG = [
+    { v: '1.8', date: '2026-10-12', items: [
+      '一模歷屆從 3 屆增加到 5 屆：新增 110-1、111-1 兩屆（108 課綱最早的兩屆）的題型',
+      '簡單版新增約 80 題觀念題（七科都有），困難版新增約 65 種題型（40 種每次換數字的計算題）',
+      '新增示意圖：外伸梁、基礎柱位平面圖',
+      '弱點分析改版：各科分開顯示，科目內依單元正確率由低到高排列，可展開看主題，也可以直接「練這單元」',
+      '既有題目順序不變，簡單版與困難版的作答紀錄全部保留'
+    ] },
     { v: '1.7', date: '2026-10-11', items: [
       '困難版題目增加：七科共新增約 75 種題型（大多是每次換數字的計算題）',
       '新增示意圖：斜面靜置、兩集中力梁、三力平衡（拉密定理）',
@@ -200,7 +207,7 @@
       var tpls = TEMPLATES.filter(function (t) { return tagKey(t) === k; });
       if (!tpls.length) continue;
       var hard = p[p.length - 1] === 'H';
-      arr.push({ key: k, hard: hard, subj: s.name, unit: u.name, tag: p.slice(2, hard ? -1 : undefined).join('|'), n: st.n, c: st.c, acc: st.c / st.n, recentWrong: st.rw || 0, gen: tpls.some(function (t) { return t.kind === 'g'; }), size: tpls.length });
+      arr.push({ key: k, si: +p[0], ui: +p[1], hard: hard, subj: s.name, unit: u.name, tag: p.slice(2, hard ? -1 : undefined).join('|'), n: st.n, c: st.c, acc: st.c / st.n, recentWrong: st.rw || 0, gen: tpls.some(function (t) { return t.kind === 'g'; }), size: tpls.length });
     }
     // 先排正確率低、再排最近連錯多
     arr.sort(function (a, b) { return (a.acc - b.acc) || (b.recentWrong - a.recentWrong) || (b.n - a.n); });
@@ -220,26 +227,46 @@
     var weak = list.filter(function (w) { return w.acc < 0.8; });
     $('weakBtn').disabled = !weak.length;
     if (!list.length) { box.innerHTML = '<span class="muted">還沒有作答紀錄，先練幾題就會出現分析。</span>'; return; }
-    // 單元總覽
-    var units = {};
-    list.forEach(function (w) { var k = w.subj + '・' + w.unit + (w.hard ? '（困難）' : ''); units[k] = units[k] || { n: 0, c: 0 }; units[k].n += w.n; units[k].c += w.c; });
-    var uk = Object.keys(units).sort(function (a, b) { return units[a].c / units[a].n - units[b].c / units[b].n; });
-    var html = '<div class="ugrid">' + uk.map(function (k) {
-      var u = units[k], a = u.c / u.n, lv = level(a, u.n);
-      return '<div class="ucell"><div>' + esc(k) + '</div><div class="mini wide"><i style="width:' + Math.round(a * 100) + '%"></i></div><span class="' + lv[1] + '">' + Math.round(a * 100) + '%（' + u.c + '/' + u.n + '）' + lv[0] + '</span></div>';
-    }).join('') + '</div>';
-    html += '<table><tr><th>科目／單元</th><th>主題</th><th>正確率</th><th>狀態</th><th></th></tr>';
-    list.slice(0, 30).forEach(function (w) {
-      var lv = level(w.acc, w.n);
-      html += '<tr><td><span class="muted">' + esc(w.subj) + '</span><br>' + esc(w.unit) + '</td><td>' + esc(w.tag) + (w.hard ? ' <span class="tag hardtag">困難</span>' : '') + (w.gen ? ' <span class="tag">可出新數字</span>' : '') +
-        '</td><td>' + Math.round(w.acc * 100) + '%<div class="mini"><i style="width:' + Math.round(w.acc * 100) + '%"></i></div><span class="hint">' + w.c + '/' + w.n + '</span></td><td class="' + lv[1] + '"><b>' + lv[0] + '</b></td>' +
-        '<td><button class="btn small" data-k="' + esc(w.key) + '">練類題</button></td></tr>';
+    // 依科目分組 → 科目內依單元正確率由低到高 → 單元內依主題由弱到強（資料不足的排最後）
+    function byAcc(a, b) { return ((a.n < 2) - (b.n < 2)) || (a.acc - b.acc) || (b.n - a.n); }
+    var subs = {};
+    list.forEach(function (w) {
+      var s = subs[w.si] = subs[w.si] || { name: w.subj, n: 0, c: 0, units: {} };
+      var uk = w.ui + (w.hard ? 'H' : '');
+      var u = s.units[uk] = s.units[uk] || { name: w.unit, hard: w.hard, n: 0, c: 0, topics: [] };
+      u.n += w.n; u.c += w.c; u.topics.push(w); s.n += w.n; s.c += w.c;
     });
-    html += '</table>';
-    if (list.length > 30) html += '<div class="hint">只列出最弱的 30 個主題</div>';
+    var sl = Object.keys(subs).map(function (k) {
+      var s = subs[k]; s.acc = s.c / s.n;
+      s.ul = Object.keys(s.units).map(function (uk) { var u = s.units[uk]; u.acc = u.c / u.n; u.topics.sort(byAcc); return u; }).sort(byAcc);
+      s.bad = s.ul.filter(function (u) { return u.n >= 2 && u.acc < 0.6; }).length;
+      return s;
+    }).sort(byAcc);
+    var html = '';
+    sl.forEach(function (s) {
+      var lv = level(s.acc, s.n);
+      html += '<details class="sg"' + (s.bad || s.acc < 0.8 ? ' open' : '') + '><summary><b>' + esc(s.name) + '</b><span class="mini wide"><i style="width:' + Math.round(s.acc * 100) + '%"></i></span>' +
+        '<span class="' + lv[1] + '">' + Math.round(s.acc * 100) + '%（' + s.c + '/' + s.n + '）</span>' + (s.bad ? '<span class="tag hardtag">' + s.bad + ' 個單元不熟</span>' : '') + '</summary>';
+      s.ul.forEach(function (u) {
+        var ul = level(u.acc, u.n);
+        html += '<details class="ug"><summary><span class="uname">' + esc(u.name) + (u.hard ? ' <span class="tag hardtag">困難</span>' : '') + '</span>' +
+          '<span class="mini wide"><i style="width:' + Math.round(u.acc * 100) + '%"></i></span><span class="' + ul[1] + '">' + Math.round(u.acc * 100) + '%（' + u.c + '/' + u.n + '）' + ul[0] + '</span>' +
+          '<button class="btn small" data-u="' + esc(u.topics.map(function (w) { return w.key; }).join('\n')) + '">練這單元</button></summary><table>';
+        u.topics.forEach(function (w) {
+          var tl = level(w.acc, w.n);
+          html += '<tr><td>' + esc(w.tag) + (w.gen ? ' <span class="tag">可出新數字</span>' : '') + '</td><td>' + Math.round(w.acc * 100) + '%<div class="mini"><i style="width:' + Math.round(w.acc * 100) + '%"></i></div><span class="hint">' + w.c + '/' + w.n + '</span></td>' +
+            '<td class="' + tl[1] + '"><b>' + tl[0] + '</b></td><td><button class="btn small ghost" data-k="' + esc(w.key) + '">練類題</button></td></tr>';
+        });
+        html += '</table></details>';
+      });
+      html += '</details>';
+    });
     box.innerHTML = html;
     Array.prototype.forEach.call(box.querySelectorAll('button[data-k]'), function (b) {
       b.onclick = function () { startSimilar([b.getAttribute('data-k')]); };
+    });
+    Array.prototype.forEach.call(box.querySelectorAll('button[data-u]'), function (b) {
+      b.onclick = function (e) { e.preventDefault(); startSimilar(b.getAttribute('data-u').split('\n')); };
     });
   }
 

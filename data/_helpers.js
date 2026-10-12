@@ -7,6 +7,13 @@ window.addHard = function (subjId, unitIndex, items) {
   var u = s.units[unitIndex];
   u.hard = (u.hard || []).concat(items);
 };
+// 簡單版題目追加到既有單元最後：addEasy('mech', 0, [...])。同樣只能往後加（id = 科目-單元-題號）。
+window.addEasy = function (subjId, unitIndex, items) {
+  var s = (window.QUIZ_DATA || []).filter(function (x) { return x.id === subjId; })[0];
+  if (!s || !s.units[unitIndex]) return;
+  var u = s.units[unitIndex];
+  u.qs = (u.qs || []).concat(items);
+};
 window.QH = (function () {
   function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { var t = a % b; a = b; b = t; } return a || 1; }
   // 負號用全形「−」比較好讀

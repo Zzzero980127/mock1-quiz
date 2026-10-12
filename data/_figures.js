@@ -172,6 +172,26 @@ window.QF = (function () {
       s += P(d, 'acc thick2') + C(x0, top, 5, 'dot') + T(x0 - 6, top + 4, '100 m', 'end') + T(x0, g + 16, '干擾器') + T(x0 + D0 * sc, g + 16, D0 + ' m');
       var yy = g - hgt * 1.6; s += L(x0, yy, 330, yy, 'thin dash') + T(330, yy - 4, '離地 ' + hgt + ' m', 'end');
       return svg(345, 220, s);
+    },
+    // 外伸梁：AB 段均佈載重 w，外伸端 C 有集中力 P
+    overhang: function (L0, c, w, Pf) {
+      var x1 = 30, x3 = 315, y = 120, sx = (x3 - x1) / (L0 + c), x2 = x1 + L0 * sx;
+      var s = Rect(x1, y, x3 - x1, 9, 'fill2 acc') + P('M' + x1 + ',' + (y + 9) + ' l-10,18 l20,0 z', '') + hatchH(x1 - 16, x1 + 18, y + 27) + C(x2, y + 17, 8, '') + hatchH(x2 - 16, x2 + 18, y + 25);
+      s += Rect(x1, y - 26, x2 - x1, 18, 'thin');
+      for (var i = 0; i <= 8; i++) s += A(x1 + i * (x2 - x1) / 8, y - 26, x1 + i * (x2 - x1) / 8, y - 2, 'thin');
+      s += T(x1, y - 32, 'w = ' + w + ' kN/m', 'start') + A(x3 - 4, y - 70, x3 - 4, y - 2, 'acc') + T(x3 - 8, y - 74, 'P = ' + Pf + ' kN', 'end');
+      s += T(x1, y + 52, 'A') + T(x2, y + 52, 'B') + T(x3 - 4, y + 30, 'C');
+      s += L(x1, y + 62, x2, y + 62, 'thin') + L(x2, y + 56, x2, y + 68, 'thin') + T((x1 + x2) / 2, y + 76, L0 + ' m') + L(x2, y + 62, x3, y + 62, 'thin') + T((x2 + x3) / 2, y + 76, c + ' m');
+      return svg(345, 205, s);
+    },
+    // 基礎平面：各柱位置 (x, z) 與柱載重
+    columns: function (pts) {
+      var ox = 70, oy = 222, sc = 15;
+      var s = Rect(ox - 12, oy - 10 * sc - 12, 10 * sc + 24, 10 * sc + 24, 'fill2 thin') + A(ox, oy, ox + 10 * sc + 50, oy) + A(ox, oy, ox, oy - 10 * sc - 40);
+      s += T(ox + 10 * sc + 54, oy + 4, 'x (m)', 'start') + T(ox, oy - 10 * sc - 46, 'z (m)') + T(ox - 6, oy + 16, 'O', 'end');
+      [0, 5, 10].forEach(function (v) { s += T(ox + v * sc, oy + 28, v, 'middle', 'small') + T(ox - 18, oy - v * sc + 4, v, 'end', 'small'); });
+      pts.forEach(function (p) { var x = ox + p[0] * sc, y = oy - p[1] * sc; s += C(x, y, 6, 'acc') + C(x, y, 2, 'dot') + T(x + 9, y - 8, p[2] + ' kN', 'start', 'small'); });
+      return svg(345, 262, s);
     }
   };
 })();
