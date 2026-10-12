@@ -14,6 +14,10 @@
 
   // ---------- 更新日誌（新版本加在最上面） ----------
   var CHANGELOG = [
+    { v: '2.0', date: '2026-10-12', items: [
+      '設定新增「只出計算題」勾勾：勾選後一般練習與錯題本只出需要計算的題目（國文、英文不算），簡單版、困難版、統測區都適用',
+      '作答紀錄全部保留'
+    ] },
     { v: '1.9', date: '2026-10-12', items: [
       '新增第三個模式「統測區（統測類似題）」：仿 111～115 學年度統測（土木與建築群專一、專二，國文、英文、數學C）的題型，只出一模範圍內的單元',
       '七科共約 110 種題型，其中約 50 種計算題每次換數字；桁架、疊放摩擦、牆面推物、懸臂梁、定樁法、水準網、方格土方、二次函數、三視圖等題附示意圖，圖上數字跟著換',
@@ -157,8 +161,20 @@
   });
   store.sel = sel;
 
+  // 計算題判斷：國英以外、題目與正解都含數字（產生器先試做一題來判斷，結果快取）
+  function isCalc(t) {
+    if (t.calc === undefined) {
+      try {
+        var raw = t.kind === 'g' ? t.item.g(R) : t.item.slice(1);
+        t.calc = !/^(chi|eng)$/.test(SUBJ[t.si].id) && /\d/.test(String(raw[0])) && /\d/.test(String(QH.fill(raw[1])[0]));
+      } catch (e) { t.calc = false; }
+    }
+    return t.calc;
+  }
+  function calcOk(t) { return !store.calcOnly || isCalc(t); }
+
   function selectedTemplates() {
-    return TEMPLATES.filter(function (t) { var s = sel[SUBJ[t.si].id]; return s.on && s.units[t.ui] && inMode(t); });
+    return TEMPLATES.filter(function (t) { var s = sel[SUBJ[t.si].id]; return s.on && s.units[t.ui] && inMode(t) && calcOk(t); });
   }
 
   // ---------- 首頁 ----------
@@ -321,7 +337,7 @@
   }
 
   function startWrongBook() {
-    var ids = Object.keys(store.wrong).filter(function (id) { return TPL_BY_ID[id] && inMode(TPL_BY_ID[id]); });
+    var ids = Object.keys(store.wrong).filter(function (id) { return TPL_BY_ID[id] && inMode(TPL_BY_ID[id]) && calcOk(TPL_BY_ID[id]); });
     var tpls = ids.map(function (id) { return TPL_BY_ID[id]; });
     var count = +$('count').value;
     startSession(makeQuestions(tpls, count), '錯題本');
@@ -462,6 +478,8 @@
   $('modeEasy').onclick = function () { store.mode = 'easy'; save(); renderHome(); };
   $('modeHard').onclick = function () { store.mode = 'hard'; save(); renderHome(); };
   $('modeTc').onclick = function () { store.mode = 'tc'; save(); renderHome(); };
+  $('optCalcOnly').checked = !!store.calcOnly;
+  $('optCalcOnly').onchange = function () { store.calcOnly = this.checked; save(); };
   $('startBtn').onclick = startNormal;
   $('wrongBtn').onclick = startWrongBook;
   $('weakBtn').onclick = startWeakest;
