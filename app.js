@@ -14,6 +14,9 @@
 
   // ---------- 更新日誌（新版本加在最上面） ----------
   var CHANGELOG = [
+    { v: '1.8.1', date: '2026-10-12', items: [
+      '困難版名稱更正為「模考類似題」（題目是仿歷屆一模模考，不是統測），作答紀錄不受影響'
+    ] },
     { v: '1.8', date: '2026-10-12', items: [
       '一模歷屆從 3 屆增加到 5 屆：新增 110-1、111-1 兩屆（108 課綱最早的兩屆）的題型',
       '簡單版新增約 80 題觀念題（七科都有），困難版新增約 65 種題型（40 種每次換數字的計算題）',
@@ -157,7 +160,7 @@
   function renderHome() {
     $('modeEasy').classList.toggle('on', !isHardMode());
     $('modeHard').classList.toggle('on', isHardMode());
-    $('modeHint').textContent = isHardMode() ? '困難版：仿統測／歷屆一模題型，多步驟計算與綜合判斷。紀錄與簡單版分開。' : '簡單版：基本觀念與單一公式，適合先熟悉重點。';
+    $('modeHint').textContent = isHardMode() ? '困難版：仿歷屆一模模考題型，多步驟計算與綜合判斷。紀錄與簡單版分開。' : '簡單版：基本觀念與單一公式，適合先熟悉重點。';
     var g = $('subjGrid'); g.innerHTML = '';
     SUBJ.forEach(function (s, si) {
       var cnt = TEMPLATES.filter(function (t) { return t.si === si && inMode(t); }).length;
