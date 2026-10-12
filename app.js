@@ -14,6 +14,12 @@
 
   // ---------- 更新日誌（新版本加在最上面） ----------
   var CHANGELOG = [
+    { v: '1.9', date: '2026-10-12', items: [
+      '新增第三個模式「統測區（統測類似題）」：仿 111～115 學年度統測（土木與建築群專一、專二，國文、英文、數學C）的題型，只出一模範圍內的單元',
+      '七科共約 110 種題型，其中約 50 種計算題每次換數字；桁架、疊放摩擦、牆面推物、懸臂梁、定樁法、水準網、方格土方、二次函數、三視圖等題附示意圖，圖上數字跟著換',
+      '統測區的作答紀錄、錯題本、弱點分析與簡單版、困難版分開（標示「統測」）',
+      '既有題目順序不變，簡單版與困難版的作答紀錄全部保留'
+    ] },
     { v: '1.8.1', date: '2026-10-12', items: [
       '困難版名稱更正為「模考類似題」（題目是仿歷屆一模模考，不是統測），作答紀錄不受影響'
     ] },
@@ -111,14 +117,22 @@
       (u.hard || []).forEach(function (it, qi) {
         TEMPLATES.push({ id: s.id + '-' + ui + '-h' + qi, si: si, ui: ui, tag: Array.isArray(it) ? it[0] : it.t, kind: Array.isArray(it) ? 's' : 'g', item: it, hard: true });
       });
+      // 統測區（仿 111～115 統測）：id 多一個 t，紀錄獨立
+      (u.tc || []).forEach(function (it, qi) {
+        TEMPLATES.push({ id: s.id + '-' + ui + '-t' + qi, si: si, ui: ui, tag: Array.isArray(it) ? it[0] : it.t, kind: Array.isArray(it) ? 's' : 'g', item: it, tc: true });
+      });
     });
   });
   var TPL_BY_ID = {}; TEMPLATES.forEach(function (t) { TPL_BY_ID[t.id] = t; });
 
   // 困難版的主題 key 結尾加 |H，弱點分析才不會和簡單版混在一起
-  function tagKey(t) { return t.si + '|' + t.ui + '|' + t.tag + (t.hard ? '|H' : ''); }
-  function isHardMode() { return store.mode === 'hard'; }
-  function inMode(t) { return !!t.hard === isHardMode(); }
+  // 統測區的主題 key 結尾加 |T
+  function tagKey(t) { return t.si + '|' + t.ui + '|' + t.tag + (t.hard ? '|H' : t.tc ? '|T' : ''); }
+  function curMode() { return store.mode === 'hard' || store.mode === 'tc' ? store.mode : 'easy'; }
+  function isHardMode() { return curMode() === 'hard'; }
+  function tplMode(t) { return t.hard ? 'hard' : t.tc ? 'tc' : 'easy'; }
+  function inMode(t) { return tplMode(t) === curMode(); }
+  var MODE_TAG = { hard: '困難', tc: '統測' };
 
   // 顯示用：跳脫 HTML，並把「a→」「AB→」改成箭頭在字母上方的向量寫法
   function fmt(s) { return esc(s).replace(/([A-Za-z]{1,2})→/g, '<span class="vec">$1</span>'); }
@@ -158,9 +172,10 @@
   }
 
   function renderHome() {
-    $('modeEasy').classList.toggle('on', !isHardMode());
-    $('modeHard').classList.toggle('on', isHardMode());
-    $('modeHint').textContent = isHardMode() ? '困難版：仿歷屆一模模考題型，多步驟計算與綜合判斷。紀錄與簡單版分開。' : '簡單版：基本觀念與單一公式，適合先熟悉重點。';
+    $('modeEasy').classList.toggle('on', curMode() === 'easy');
+    $('modeHard').classList.toggle('on', curMode() === 'hard');
+    $('modeTc').classList.toggle('on', curMode() === 'tc');
+    $('modeHint').textContent = curMode() === 'tc' ? '統測區：仿 111～115 學年度統測（土木與建築群、共同科目）的題型與出題方式，只出一模範圍內的單元，部分題目附圖。紀錄與其他模式分開。' : isHardMode() ? '困難版：仿歷屆一模模考題型，多步驟計算與綜合判斷。紀錄與簡單版分開。' : '簡單版：基本觀念與單一公式，適合先熟悉重點。';
     var g = $('subjGrid'); g.innerHTML = '';
     SUBJ.forEach(function (s, si) {
       var cnt = TEMPLATES.filter(function (t) { return t.si === si && inMode(t); }).length;
@@ -209,8 +224,8 @@
       var u = s.units[+p[1]]; if (!u) continue;
       var tpls = TEMPLATES.filter(function (t) { return tagKey(t) === k; });
       if (!tpls.length) continue;
-      var hard = p[p.length - 1] === 'H';
-      arr.push({ key: k, si: +p[0], ui: +p[1], hard: hard, subj: s.name, unit: u.name, tag: p.slice(2, hard ? -1 : undefined).join('|'), n: st.n, c: st.c, acc: st.c / st.n, recentWrong: st.rw || 0, gen: tpls.some(function (t) { return t.kind === 'g'; }), size: tpls.length });
+      var last = p[p.length - 1], md = last === 'H' ? 'hard' : last === 'T' ? 'tc' : 'easy', hard = md !== 'easy';
+      arr.push({ key: k, si: +p[0], ui: +p[1], hard: md === 'hard', md: md, subj: s.name, unit: u.name, tag: p.slice(2, hard ? -1 : undefined).join('|'), n: st.n, c: st.c, acc: st.c / st.n, recentWrong: st.rw || 0, gen: tpls.some(function (t) { return t.kind === 'g'; }), size: tpls.length });
     }
     // 先排正確率低、再排最近連錯多
     arr.sort(function (a, b) { return (a.acc - b.acc) || (b.recentWrong - a.recentWrong) || (b.n - a.n); });
@@ -235,8 +250,8 @@
     var subs = {};
     list.forEach(function (w) {
       var s = subs[w.si] = subs[w.si] || { name: w.subj, n: 0, c: 0, units: {} };
-      var uk = w.ui + (w.hard ? 'H' : '');
-      var u = s.units[uk] = s.units[uk] || { name: w.unit, hard: w.hard, n: 0, c: 0, topics: [] };
+      var uk = w.ui + w.md;
+      var u = s.units[uk] = s.units[uk] || { name: w.unit, md: w.md, n: 0, c: 0, topics: [] };
       u.n += w.n; u.c += w.c; u.topics.push(w); s.n += w.n; s.c += w.c;
     });
     var sl = Object.keys(subs).map(function (k) {
@@ -252,7 +267,7 @@
         '<span class="' + lv[1] + '">' + Math.round(s.acc * 100) + '%（' + s.c + '/' + s.n + '）</span>' + (s.bad ? '<span class="tag hardtag">' + s.bad + ' 個單元不熟</span>' : '') + '</summary>';
       s.ul.forEach(function (u) {
         var ul = level(u.acc, u.n);
-        html += '<details class="ug"><summary><span class="uname">' + esc(u.name) + (u.hard ? ' <span class="tag hardtag">困難</span>' : '') + '</span>' +
+        html += '<details class="ug"><summary><span class="uname">' + esc(u.name) + (MODE_TAG[u.md] ? ' <span class="tag hardtag">' + MODE_TAG[u.md] + '</span>' : '') + '</span>' +
           '<span class="mini wide"><i style="width:' + Math.round(u.acc * 100) + '%"></i></span><span class="' + ul[1] + '">' + Math.round(u.acc * 100) + '%（' + u.c + '/' + u.n + '）' + ul[0] + '</span>' +
           '<button class="btn small" data-u="' + esc(u.topics.map(function (w) { return w.key; }).join('\n')) + '">練這單元</button></summary><table>';
         u.topics.forEach(function (w) {
@@ -322,7 +337,7 @@
   }
 
   function startWeakest() {
-    var weak = weakList().filter(function (w) { return w.acc < 0.8 && w.hard === isHardMode(); }).slice(0, 5).map(function (w) { return w.key; });
+    var weak = weakList().filter(function (w) { return w.acc < 0.8 && w.md === curMode(); }).slice(0, 5).map(function (w) { return w.key; });
     if (!weak.length) { flash('目前沒有不熟的主題，繼續保持！'); return; }
     startSimilar(weak);
   }
@@ -331,7 +346,7 @@
   function renderQ() {
     var s = session, q = s.qs[s.i], t = q.tpl;
     $('qProg').textContent = s.title + '　第 ' + (s.i + 1) + ' / ' + s.qs.length + ' 題';
-    $('qTag').textContent = (t.hard ? '困難・' : '') + SUBJ[t.si].name + '・' + SUBJ[t.si].units[t.ui].name + '・' + t.tag;
+    $('qTag').textContent = (MODE_TAG[tplMode(t)] ? MODE_TAG[tplMode(t)] + '・' : '') + SUBJ[t.si].name + '・' + SUBJ[t.si].units[t.ui].name + '・' + t.tag;
     $('qBar').style.width = (s.i / s.qs.length * 100) + '%';
     $("qText").innerHTML = fmt(q.q) + (q.fig ? '<div class="figbox">' + q.fig + '</div>' : '');
     var box = $('qOpts'); box.innerHTML = '';
@@ -425,7 +440,7 @@
     var keys = Object.keys(groups).sort(function (a, b) { return groups[b].items.length - groups[a].items.length; });
     box.innerHTML = keys.map(function (k) {
       var g = groups[k], t = g.t;
-      return '<details class="lg"><summary><b>' + esc(SUBJ[t.si].name) + '・' + esc(t.tag) + '</b>' + (t.hard ? ' <span class="tag hardtag">困難</span>' : '') + ' <span class="muted">（' + esc(SUBJ[t.si].units[t.ui].name) + '）錯 ' + g.items.length + ' 次</span> <button class="btn small" data-k="' + esc(k) + '">練類題</button></summary>' +
+      return '<details class="lg"><summary><b>' + esc(SUBJ[t.si].name) + '・' + esc(t.tag) + '</b>' + (MODE_TAG[tplMode(t)] ? ' <span class="tag hardtag">' + MODE_TAG[tplMode(t)] + '</span>' : '') + ' <span class="muted">（' + esc(SUBJ[t.si].units[t.ui].name) + '）錯 ' + g.items.length + ' 次</span> <button class="btn small" data-k="' + esc(k) + '">練類題</button></summary>' +
         g.items.slice(0, 10).map(function (l) {
           return '<div class="wrong"><div class="q">' + fmt(l.q) + '</div><div class="badc">你選：' + fmt(l.mine) + '</div><div class="okc">正解：' + fmt(l.ans) + '</div><div class="hint">' + fmt(l.exp) + '<br>' + new Date(l.time).toLocaleString() + '</div></div>';
         }).join('') + '</details>';
@@ -446,6 +461,7 @@
   $('allOff').onclick = function () { SUBJ.forEach(function (s) { sel[s.id].on = false; }); save(); renderHome(); };
   $('modeEasy').onclick = function () { store.mode = 'easy'; save(); renderHome(); };
   $('modeHard').onclick = function () { store.mode = 'hard'; save(); renderHome(); };
+  $('modeTc').onclick = function () { store.mode = 'tc'; save(); renderHome(); };
   $('startBtn').onclick = startNormal;
   $('wrongBtn').onclick = startWrongBook;
   $('weakBtn').onclick = startWeakest;
