@@ -666,7 +666,7 @@
   $('modeHard').onclick = function () { store.mode = 'hard'; save(); renderHome(); };
   $('modeTc').onclick = function () { store.mode = 'tc'; save(); renderHome(); };
   $('optCalcOnly').checked = !!store.calcOnly;
-  $('optCalcOnly').onchange = function () { store.calcOnly = this.checked; save(); };
+  $('optCalcOnly').onchange = function () { store.calcOnly = this.checked; save(); renderHome(); };
   $('startBtn').onclick = startNormal;
   $('wrongBtn').onclick = startWrongBook;
   $('weakBtn').onclick = startWeakest;
