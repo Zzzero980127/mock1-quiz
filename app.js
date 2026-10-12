@@ -14,6 +14,12 @@
 
   // ---------- 更新日誌（新版本加在最上面） ----------
   var CHANGELOG = [
+    { v: '2.2', date: '2026-10-12', items: [
+      '作答時新增「✏️ 計算區」：很大的方格紙，可以拖移、縮放，有筆（四種顏色）、橡皮擦、復原、清空，沒紙筆也能算',
+      '每一題的計算區分開保存；寫過的題目按鈕會顯示「✏️ 計算區 •」',
+      '看成績時，錯題檢討每題有「看計算區」，另外「計算區回顧」可以點開任何一題寫過的計算，找出哪一步算錯',
+      '計算區只保留到這次測驗結束（不佔空間），原本的作答紀錄、錯題本都保留'
+    ] },
     { v: '2.1', date: '2026-10-12', items: [
       '新增「測驗模式」（設定區勾選）：全部做完交卷才顯示答案與詳解，作答中可按上一題／下一題或題號回去改答案',
       '新增計時器（設定區勾選、可自訂分鐘數）：時間到會跳出「時間結束」，按「看測驗結果」看成績',
@@ -385,6 +391,7 @@
     });
     $('qFeedback').innerHTML = '';
     s.answered = false;
+    sketchLabel();
     $('prevBtn').classList.toggle('hidden', !s.exam);
     $('prevBtn').disabled = s.i === 0;
     var nav = $('qNav'); nav.classList.toggle('hidden', !s.exam);
@@ -395,6 +402,19 @@
       nav.innerHTML = s.qs.map(function (_, k) { return '<button class="' + (s.picks[k] != null ? 'done' : '') + (k === s.i ? ' cur' : '') + '" data-k="' + k + '">' + (k + 1) + '</button>'; }).join('');
       Array.prototype.forEach.call(nav.children, function (b) { b.onclick = function () { s.i = +b.getAttribute('data-k'); renderQ(); }; });
     } else $('nextBtn').classList.add('hidden');
+  }
+
+  // 計算區：每題一份，存在 q.sketch
+  function sketchLabel() { var q = session.qs[session.i]; $('sketchBtn').textContent = '✏️ 計算區' + (Scratch.has(q.sketch) ? ' •' : ''); }
+  function qHtml(q) { return '<div class="qq">' + fmt(q.q) + '</div>' + (q.fig ? '<div class="figbox">' + q.fig + '</div>' : '') + q.opts.map(function (o, i) { return '<div>' + (i + 1) + '. ' + fmt(o) + '</div>'; }).join(''); }
+  function openSketch() {
+    var q = session.qs[session.i];
+    Scratch.open({ data: q.sketch || (q.sketch = {}), html: qHtml(q), onClose: sketchLabel });
+  }
+  function reviewSketch(r, k) {
+    var q = r.q;
+    Scratch.open({ data: q.sketch, fit: true, tool: 'hand', html: '<b>第 ' + (k + 1) + ' 題</b>' + qHtml(q) +
+      '<div class="' + (r.ok ? 'okc' : 'badc') + '">你的答案：' + (r.mine == null ? '（未作答）' : fmt(q.opts[r.mine])) + '</div><div class="okc">正解：' + fmt(q.opts[q.ans]) + '</div><div class="hint">' + fmt(q.exp) + '</div>' });
   }
 
   function answer(i) {
@@ -474,6 +494,7 @@
   function finish() {
     var s = session;
     stopTimer(); $('timeUp').classList.add('hidden');
+    if (Scratch.isOpen()) Scratch.close();
     // 測驗模式：交卷時才一次寫入紀錄；完全沒作答就不算
     if (s.exam && !s.done) {
       s.done = true;
@@ -503,8 +524,15 @@
     session.wrongTpls = wrong.map(function (r) { return r.q.tpl; });
     $('rWrongCard').style.display = wrong.length ? '' : 'none';
     $('rWrong').innerHTML = wrong.map(function (r) {
-      return '<div class="wrong"><div class="q">' + fmt(r.q.q) + '</div>' + (r.q.fig ? '<div class="figbox small">' + r.q.fig + '</div>' : '') + '<div class="badc">你的答案：' + (r.mine == null ? '（未作答）' : fmt(r.q.opts[r.mine])) + '</div><div class="okc">正解：' + fmt(r.q.opts[r.q.ans]) + '</div><div class="hint">' + fmt(r.q.exp) + '</div></div>';
+      var k = res.indexOf(r);
+      return '<div class="wrong">' + (Scratch.has(r.q.sketch) ? '<button class="btn small ghost" style="float:right" data-sk="' + k + '">✏️ 看計算區</button>' : '') + '<div class="q">' + fmt(r.q.q) + '</div>' + (r.q.fig ? '<div class="figbox small">' + r.q.fig + '</div>' : '') + '<div class="badc">你的答案：' + (r.mine == null ? '（未作答）' : fmt(r.q.opts[r.mine])) + '</div><div class="okc">正解：' + fmt(r.q.opts[r.q.ans]) + '</div><div class="hint">' + fmt(r.q.exp) + '</div></div>';
     }).join('');
+    var sk = res.filter(function (r) { return Scratch.has(r.q.sketch); });
+    $('rSketchCard').style.display = sk.length ? '' : 'none';
+    $('rSketch').innerHTML = sk.map(function (r) { var k = res.indexOf(r); return '<button class="btn small ' + (r.ok ? 'ghost' : '') + '" data-sk="' + k + '">第 ' + (k + 1) + ' 題 ' + (r.ok ? '✔' : '✘') + '</button>'; }).join('');
+    Array.prototype.forEach.call(document.querySelectorAll('#result [data-sk]'), function (b) {
+      b.onclick = function () { var k = +b.getAttribute('data-sk'); reviewSketch(res[k], k); };
+    });
     $('qBar').style.width = '100%';
     show('result');
   }
@@ -562,6 +590,7 @@
   $('timerMin').value = store.timerMin = store.timerMin || 30;
   $('optTimer').onchange = function () { store.timerOn = this.checked; save(); };
   $('timerMin').onchange = function () { var v = Math.round(+this.value); if (!(v > 0)) v = 30; if (v > 300) v = 300; this.value = v; store.timerMin = v; save(); };
+  $('sketchBtn').onclick = openSketch;
   $('homeBtn').onclick = function () { show('home'); renderHome(); };
   $('retryWrong').onclick = function () { startSession(session.wrongTpls.map(build), '重練錯題'); };
   $('similarWrong').onclick = function () {
@@ -586,7 +615,7 @@
     clearTimeout(flash.t); flash.t = setTimeout(function () { m.hidden = true; }, 4000);
   }
   document.addEventListener('keydown', function (e) {
-    if ($('quiz').classList.contains('hidden') || !$('timeUp').classList.contains('hidden')) return;
+    if (Scratch.isOpen() || $('quiz').classList.contains('hidden') || !$('timeUp').classList.contains('hidden')) return;
     if (session && session.exam && e.key === 'ArrowLeft') { prev(); return; }
     if (session && session.exam && e.key === 'ArrowRight') { next(); return; }
     if (e.key >= '1' && e.key <= '4') { var b = $('qOpts').children[+e.key - 1]; if (b) b.click(); }

@@ -228,7 +228,10 @@ details.ug table{margin:6px 0 2px}
       <div class="opts" id="qOpts"></div>
       <div id="qFeedback"></div>
       <div class="row" style="justify-content:space-between">
-        <button class="btn ghost small" id="quitBtn">結束並看成績</button>
+        <span class="row">
+          <button class="btn ghost small" id="quitBtn">結束並看成績</button>
+          <button class="btn small" id="sketchBtn">✏️ 計算區</button>
+        </span>
         <span class="row">
           <button class="btn ghost hidden" id="prevBtn">◀ 上一題</button>
           <button class="btn hidden" id="nextBtn">下一題 ▶</button>
@@ -250,6 +253,7 @@ details.ug table{margin:6px 0 2px}
       </div>
     </div>
     <div class="card"><b>各科表現</b><table id="rTable" style="margin-top:6px"></table></div>
+    <div class="card" id="rSketchCard"><b>計算區回顧</b><div class="muted" style="font-size:.85rem">點題號看那題的計算過程（✘ 是答錯的題目）</div><div class="row" id="rSketch" style="margin-top:8px"></div></div>
     <div class="card" id="rWrongCard"><b>錯題檢討</b><div id="rWrong"></div></div>
   </div>
 </div>
@@ -257,24 +261,25 @@ details.ug table{margin:6px 0 2px}
 <div class="overlay hidden" id="timeUp"><div class="card"><div class="big" style="font-size:1.8rem">時間結束</div><div class="row" style="justify-content:center;margin-top:14px"><button class="btn" id="timeUpBtn">看測驗結果</button></div></div></div>
 
 <script>window.QUIZ_DATA = [];</script>
-<script src="data/_helpers.js?v=19"></script>
-<script src="data/_figures.js?v=19"></script>
-<script src="data/chinese.js?v=19"></script>
-<script src="data/english.js?v=19"></script>
-<script src="data/math.js?v=19"></script>
-<script src="data/mechanics.js?v=19"></script>
-<script src="data/materials.js?v=19"></script>
-<script src="data/surveying.js?v=19"></script>
-<script src="data/drawing.js?v=19"></script>
-<script src="data/hard_chinese.js?v=19"></script>
-<script src="data/hard_english.js?v=19"></script>
-<script src="data/hard_math.js?v=19"></script>
-<script src="data/hard_mechanics.js?v=19"></script>
-<script src="data/hard_materials.js?v=19"></script>
-<script src="data/hard_surveying.js?v=19"></script>
-<script src="data/hard_drawing.js?v=19"></script>
-<script src="data/past_110_111.js?v=19"></script>
-<script src="data/tc_111_115.js?v=19"></script>
-<script src="app.js?v=19"></script>
+<script src="data/_helpers.js?v=20"></script>
+<script src="data/_figures.js?v=20"></script>
+<script src="data/chinese.js?v=20"></script>
+<script src="data/english.js?v=20"></script>
+<script src="data/math.js?v=20"></script>
+<script src="data/mechanics.js?v=20"></script>
+<script src="data/materials.js?v=20"></script>
+<script src="data/surveying.js?v=20"></script>
+<script src="data/drawing.js?v=20"></script>
+<script src="data/hard_chinese.js?v=20"></script>
+<script src="data/hard_english.js?v=20"></script>
+<script src="data/hard_math.js?v=20"></script>
+<script src="data/hard_mechanics.js?v=20"></script>
+<script src="data/hard_materials.js?v=20"></script>
+<script src="data/hard_surveying.js?v=20"></script>
+<script src="data/hard_drawing.js?v=20"></script>
+<script src="data/past_110_111.js?v=20"></script>
+<script src="data/tc_111_115.js?v=20"></script>
+<script src="scratch.js?v=20"></script>
+<script src="app.js?v=20"></script>
 </body>
 </html>
