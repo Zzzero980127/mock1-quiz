@@ -60,7 +60,7 @@
         var pts = { A: [0, 0], B: [4, 0], C: [8, 0], D: [12, 0], E: [4, 3], F: [8, 3] };
         var mem = ['AB', 'BC', 'CD', 'AE', 'EF', 'FD', 'BE', 'CF', 'EC'], s = '';
         mem.forEach(function (m) { var a = pts[m[0]], b = pts[m[1]]; s += L(X(a[0]), Y(a[1]), X(b[0]), Y(b[1]), 'thick acc'); });
-        Object.keys(pts).forEach(function (k) { var p = pts[k]; s += C(X(p[0]), Y(p[1]), 3.5, 'dot') + T(X(p[0]) + (p[1] ? 0 : 10), Y(p[1]) + (p[1] ? -9 : 16), k); });
+        Object.keys(pts).forEach(function (k) { var p = pts[k]; s += C(X(p[0]), Y(p[1]), 3.5, 'dot') + (k === 'A' ? T(X(p[0]) - 12, Y(p[1]) + 4, k, 'end') : k === 'D' ? T(X(p[0]) + 12, Y(p[1]) + 4, k, 'start') : T(X(p[0]) + (p[1] ? 0 : 10), Y(p[1]) + (p[1] ? -9 : 16), k)); });
         s += pin(X(0), Y(0) + 4) + roller(X(12), Y(0) + 4) + A(X(8), Y(0) + 6, X(8), Y(0) + 46, 'acc') + T(X(8) + 8, Y(0) + 44, 'P = ' + Pf + ' kN', 'start');
         s += dim(X(0), X(4), 222, '4 m') + dim(X(4), X(8), 222, '4 m') + dim(X(8), X(12), 222, '4 m') + L(X(12) + 26, Y(0), X(12) + 26, Y(3), 'thin') + T(X(12) + 30, Y(1.5), '3 m', 'start');
         return svg(365, 245, s);

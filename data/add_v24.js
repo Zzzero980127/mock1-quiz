@@ -213,8 +213,8 @@ window.GF = (function () {
     s += G.A(px[0], px[1], ex[0], ex[1], 'thin') + G.A(py[0], py[1], ey[0], ey[1], 'thin') + G.A(pz[0], pz[1], ez[0], ez[1], 'thin');
     s += G.T(ex[0] - 6, ex[1] + 6, 'x', 'end') + G.T(ey[0] + 6, ey[1] + 4, 'y', 'start') + G.T(ez[0] + 6, ez[1] + 4, 'z', 'start');
     var b = P(X, Y, Z); s += G.A(o[0], o[1], b[0], b[1], 'thick acc') + G.T(o[0] - 6, o[1] - 6, 'O', 'end') + G.T(b[0] + 6, b[1] - 4, 'B', 'start');
-    var m1 = P(X, Y / 2, 0), m2 = P(X / 2, Y, 0), m3 = P(X, Y, Z / 2);
-    s += G.T(m1[0], m1[1] + 16, Y + ' m', 'middle', 'small') + G.T(m2[0] + 8, m2[1] + 14, X + ' m', 'start', 'small') + G.T(m3[0] + 8, m3[1], Z + ' m', 'start', 'small');
+    var m1 = P(X, Y / 2, 0), m2 = P(X / 2, Y, 0), m3 = P(X, 0, Z / 2);
+    s += G.T(m1[0], m1[1] + 16, Y + ' m', 'middle', 'small') + G.T(m2[0] + 8, m2[1] + 14, X + ' m', 'start', 'small') + G.T(m3[0] - 8, m3[1] + 4, Z + ' m', 'end', 'small');
     var ask = ri(0, 3), N = U('N'), fig = G.svg(360, Oy + 0.42 * X * s0 + 45, s);
     var ex1 = '對角線長 OB = √(' + X + '² + ' + Y + '² + ' + Z + '²) = ' + d + ' m。\n分量 = F × (該方向邊長 / 對角線長)：Fx = ' + Fm + '×' + X + '/' + d + ' = ' + D(cm[0], 2) + '、Fy = ' + D(cm[1], 2) + '、Fz = ' + D(cm[2], 2) + ' N。';
     if (ask === 3) {
