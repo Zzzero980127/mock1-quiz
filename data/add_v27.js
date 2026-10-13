@@ -25,7 +25,7 @@
     var ax = X(a), bx = X(b), tipA = [ax + L1 * c, y - L1 * sn], tipB = [bx - L1 * c, y + L1 * sn];
     s += G.A(ax, y, tipA[0], tipA[1], 'acc') + G.A(bx, y, tipB[0], tipB[1], 'acc');
     s += G.T(tipA[0] + 6, tipA[1] + (up > 0 ? -4 : 12), 'F = ' + F + ' N', 'start', 'small') + G.T(tipB[0] + 6, tipB[1] + (up > 0 ? 12 : -4), 'F = ' + F + ' N', 'start', 'small');
-    if (ang !== 90) s += G.arc(ax, y, 22, up > 0 ? 180 : 0, th) + G.lab(ax, y, 36, ((up > 0 ? 180 : 0) + th) / 2, ang + '°') + G.arc(bx, y, 22, up > 0 ? 360 : 180, th + 180) + G.lab(bx, y, 36, ((up > 0 ? 360 : 180) + th + 180) / 2, ang + '°');
+    if (ang !== 90) s += G.arc(ax, y, 22, up > 0 ? 180 : 0, th) + G.lab(ax, y, 36, ((up > 0 ? 180 : 0) + th) / 2, ang + '°') + G.arc(bx, y, 22, up > 0 ? 360 : 180, th + 180) + G.lab(bx, y, 36, ((up > 0 ? 360 : 180) + th + 180) / 2, ang + '°') + QH.slope(ax, y, up > 0 ? 0 : 180, th + 180, ang, 8, Math.min(42, (bx - ax) * 0.55));
     s += G.dim(X(a), X(b), y + 70, (b - a) + ' m') + G.C(X(a), y, 3, 'dot') + G.C(X(b), y, 3, 'dot');
     var dir = up > 0 ? '順時針' : '逆時針', Mu = function (v, dd) { return D(v, 2) + ' N·m（' + dd + '）'; }, other = up > 0 ? '逆時針' : '順時針';
     return ['如圖，桿上作用一對大小相等、方向相反的平行力（力偶），兩力作用點相距 ' + (b - a) + ' m' + (ang === 90 ? '、皆垂直於桿' : '、與桿夾 ' + ang + '°（sin' + ang + '° = ' + TG[ang][0] + '）') + '，此力偶矩為何？', O(Mu(M, dir), [Mu(M, other), Mu(F * (b - a), ang === 90 ? other : dir), Mu(2 * M, dir), Mu(M / 2, dir)]),

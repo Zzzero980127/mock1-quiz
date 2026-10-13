@@ -83,5 +83,28 @@ window.QH = (function () {
     }
     return out;
   }
-  return { gcd: gcd, n: n, frac: frac, piFrac: piFrac, sqrtS: sqrtS, lin: lin, pt: pt, dec: dec, opts: opts, fill: fill, clean: clean };
+  /* 特殊角在圖上加畫邊長比三角形（斜邊貼在那條線上，兩股分別沿基準線與垂直方向）：
+   * 37°/53° → 3-4-5、28°/62° → 8-15-17、23°/67° → 5-12-13、16°/74° → 7-24-25。
+   * vx,vy 角的頂點；ref、line 為基準線與斜線的方向（數學角度，逆時針為正）；ang 題目給的角度；
+   * s0 三角形從頂點沿斜線多遠開始；d 斜邊長（px）；hin = true 時斜邊的數字寫在三角形裡面（斜邊外側有東西時用）。不是特殊角回傳空字串。 */
+  var SLOPE = { 37: [4, 3, 5], 53: [3, 4, 5], 28: [15, 8, 17], 62: [8, 15, 17], 23: [12, 5, 13], 67: [5, 12, 13], 16: [24, 7, 25], 74: [7, 24, 25] };
+  function slope(vx, vy, ref, line, ang, s0, d, hin) {
+    var k = SLOPE[ang]; if (!k || !(d >= 18)) return '';
+    var R = Math.PI / 180, ux = Math.cos(line * R), uy = -Math.sin(line * R), rx = Math.cos(ref * R), ry = -Math.sin(ref * R);
+    var a = d * (ux * rx + uy * ry);
+    var x1 = vx + s0 * ux, y1 = vy + s0 * uy, x2 = x1 + d * ux, y2 = y1 + d * uy, qx = x1 + a * rx, qy = y1 + a * ry;
+    var gx = (x1 + x2 + qx) / 3, gy = (y1 + y2 + qy) / 3;
+    function f(v) { return Math.round(v * 10) / 10; }
+    function ln(ax, ay, bx, by) { return '<line x1="' + f(ax) + '" y1="' + f(ay) + '" x2="' + f(bx) + '" y2="' + f(by) + '" class="slope"/>'; }
+    function lb(ax, ay, bx, by, t) {
+      var mx = (ax + bx) / 2, my = (ay + by) / 2, ox = mx - gx, oy = my - gy, l = Math.sqrt(ox * ox + oy * oy) || 1, o = String(t).length > 1 ? 11 : 9;
+      return '<text x="' + f(mx + ox / l * o) + '" y="' + f(my + oy / l * o + 4) + '" text-anchor="middle" class="small slope">' + t + '</text>';
+    }
+    var e1x = x1 - qx, e1y = y1 - qy, e2x = x2 - qx, e2y = y2 - qy, l1 = Math.sqrt(e1x * e1x + e1y * e1y) || 1, l2 = Math.sqrt(e2x * e2x + e2y * e2y) || 1, m = 5;
+    e1x = e1x / l1 * m; e1y = e1y / l1 * m; e2x = e2x / l2 * m; e2y = e2y / l2 * m;
+    return '<g class="slopetri">' + ln(x1, y1, qx, qy) + ln(qx, qy, x2, y2) + ln(x1, y1, x2, y2) +
+      '<path d="M' + f(qx + e1x) + ',' + f(qy + e1y) + ' L' + f(qx + e1x + e2x) + ',' + f(qy + e1y + e2y) + ' L' + f(qx + e2x) + ',' + f(qy + e2y) + '" class="slope"/>' +
+      lb(x1, y1, qx, qy, k[0]) + lb(qx, qy, x2, y2, k[1]) + (hin ? '<text x="' + f(gx) + '" y="' + f(gy + 4) + '" text-anchor="middle" class="small slope">' + k[2] + '</text>' : lb(x1, y1, x2, y2, k[2])) + '</g>';
+  }
+  return { gcd: gcd, n: n, frac: frac, piFrac: piFrac, sqrtS: sqrtS, lin: lin, pt: pt, dec: dec, opts: opts, fill: fill, clean: clean, slope: slope };
 })();

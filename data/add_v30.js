@@ -22,8 +22,8 @@
     var ky = 140, kx = 180, cy = 40, h = ky - cy, xl = kx - h / Math.tan(rad(a)), xr = kx + h / Math.tan(rad(b));
     var g = G.hH(Math.min(xl, 60) - 20, Math.max(xr, 300) + 20, cy, true) + G.L(xl, cy, kx, ky, 'thick acc') + G.L(xr, cy, kx, ky, 'thick acc');
     g += G.L(kx, ky, kx, ky + 30, 'thick') + G.Rc(kx - 22, ky + 30, 44, 34, 'fill2') + G.T(kx, ky + 52, 'W', 'middle', 'small') + G.C(kx, ky, 3, 'dot');
-    g += G.arc(xl, cy, 26, 0, -a) + G.lab(xl, cy, 42, -a / 2, a + '°') + G.arc(xr, cy, 26, 180, 180 + b) + G.lab(xr, cy, 42, 180 + b / 2, b + '°');
-    g += G.T((xl + kx) / 2 - 10, (cy + ky) / 2 + 4, 'T₁', 'end') + G.T((xr + kx) / 2 + 10, (cy + ky) / 2 + 4, 'T₂', 'start');
+    g += G.arc(xl, cy, 26, 0, -a) + G.lab(xl, cy, 42, -a / 2, a + '°') + G.arc(xr, cy, 26, 180, 180 + b) + G.lab(xr, cy, 42, 180 + b / 2, b + '°') + QH.slope(xl, cy, 0, -a, a, 46, Math.min(46, h / sn(a) - 56)) + QH.slope(xr, cy, 180, 180 + b, b, 46, Math.min(46, h / sn(b) - 56));
+    g += G.T(xl + (kx - xl) * 0.78 - 10, cy + h * 0.78 + 4, 'T₁', 'end') + G.T(xr + (kx - xr) * 0.78 + 10, cy + h * 0.78 + 4, 'T₂', 'start');
     var Nu = U('N'), ans = ask === 'L' ? T1 : T2, oth = ask === 'L' ? T2 : T1;
     return ['如圖，重 ' + W + ' N 的物體以兩繩懸吊，左繩與水平夾 ' + a + '°、右繩與水平夾 ' + b + '°，' + (ask === 'L' ? '左繩張力 T₁' : '右繩張力 T₂') + ' 為何？（sin' + a + '° = ' + sn(a) + '、cos' + a + '° = ' + cs(a) + (a === b ? '' : '；sin' + b + '° = ' + sn(b) + '、cos' + b + '° = ' + cs(b)) + '）',
       O(Nu(ans), [Nu(oth), Nu(W / 2), Nu(W * (ask === 'L' ? sn(a) : sn(b))), Nu(W / (2 * (ask === 'L' ? sn(a) : sn(b))))], more(Nu, ans)),
@@ -114,7 +114,7 @@
     g = G.L(gx, gy, tx, ty, 'thick') + G.L(gx, gy, tx + 60, gy, 'thick') + G.L(tx, ty, tx, gy, 'thick');
     g += '<g transform="translate(' + G.r1(mx) + ',' + G.r1(my) + ') rotate(' + G.r1(-ang * 180 / Math.PI) + ')">' + G.Rc(-25, -32, 50, 32, 'fill2') + G.T(0, -12, 'A', 'middle') + '</g>';
     g += G.L(mx + 25 * Math.cos(ang) + 16 * Math.sin(ang), my - 25 * Math.sin(ang) - 16 * Math.cos(ang), tx - 4, ty - 14, 'thick') + G.C(tx + 4, ty - 6, 9, '') + G.L(tx + 13, ty - 6, tx + 13, ty + 40, 'thick') + G.Rc(tx + 1, ty + 40, 24, 24, 'fill2') + G.T(tx + 13, ty + 57, 'B', 'middle', 'small');
-    g += G.arc(gx, gy, 34, 0, ang * 180 / Math.PI) + G.lab(gx, gy, 50, ang * 90 / Math.PI, th + '°');
+    g += G.arc(gx, gy, 34, 0, ang * 180 / Math.PI) + G.lab(gx, gy, 50, ang * 90 / Math.PI, th + '°') + QH.slope(gx, gy, 0, ang * 180 / Math.PI, th, 60, 54);
     var res = Math.abs(f) < 1e-9 ? '0 N（不需摩擦力）' : Nu(Math.abs(f)) + '，沿斜面向' + (f > 0 ? '下' : '上');
     return ['如圖，重 ' + WA + ' N 的物體 A 靜止在傾角 ' + th + '° 的斜面上，以平行斜面的繩跨過光滑定滑輪吊著重 ' + WB + ' N 的物體 B。斜面作用在 A 的靜摩擦力為何？（sin' + th + '° = ' + sn(th) + '）',
       O(res, [Nu(Math.abs(f)) + '，沿斜面向' + (f > 0 ? '上' : '下'), Nu(WB) + '，沿斜面向上', Nu(WA * cs(th) - WB) + '，沿斜面向上', Nu(par) + '，沿斜面向下']),
@@ -186,7 +186,7 @@
       return ['如圖，沿斜坡量得 AB 斜距 ' + S.toFixed(2) + ' m，兩點高差 ' + hm.toFixed(1) + ' m，傾斜改正量約為何？', O('−' + M(cr), ['+' + M(cr), '−' + M(cr * 2), '−' + M(hm * hm / S / 10), '+' + M(cr * 2)]), ex, fig];
     }
     var a = pick([30, 37, 45, 53, 60]), Hd2 = S * cs(a);
-    g += G.arc(x0, y0, 40, 0, 20) + G.lab(x0, y0, 58, 10, a + '°');
+    g += G.arc(x0, y0, 40, 0, 20) + G.lab(x0, y0, 58, 10, a + '°') + QH.slope(x0, y0, 0, 20, a, 60, 50);
     return ['如圖，沿斜坡量得 AB 斜距 ' + S.toFixed(2) + ' m，傾角 ' + a + '°（cos' + a + '° = ' + cs(a) + '），AB 水平距離為何？', O(M(Hd2), [M(S * sn(a)), M(S / cs(a)), M(S - S * sn(a)), M(S * cs(a) * 0.9)]), '平距 = 斜距 × cosθ = ' + S.toFixed(2) + ' × ' + cs(a) + ' = ' + M(Hd2) + '；高差 = 斜距 × sinθ = ' + M(S * sn(a)) + '。', G.svg(400, 220, g)];
   }
 
@@ -210,8 +210,8 @@
     var NA = ri(1000, 5000) + ri(0, 999) / 1000, EA = ri(1000, 5000) + ri(0, 999) / 1000, dN = Dm * cosA, dE = Dm * sinA, ask = pick(['N', 'E']), M = U('m', 3);
     var o = [120, 140], r = 90, bx = o[0] + r * sinA, by = o[1] - r * cosA;
     var g = G.A(o[0], o[1] + 20, o[0], 25, 'thin') + G.T(o[0], 18, 'N', 'middle', 'small') + G.L(o[0], o[1], bx, by, 'thick acc') + G.C(o[0], o[1], 3.5, 'dot') + G.C(bx, by, 3.5, 'dot');
-    g += G.arc(o[0], o[1], 26, 90, 90 - az, 'thin') + G.lab(o[0], o[1], 42, 90 - Math.min(az, 330) / 2, az + '°') + G.T(o[0] - 8, o[1] + 16, 'A', 'end') + G.T(bx + (sinA >= 0 ? 8 : -8), by + 4, 'B', sinA >= 0 ? 'start' : 'end');
-    g += G.T((o[0] + bx) / 2 + (cosA >= 0 ? 10 : -10), (o[1] + by) / 2, Dm + ' m', cosA >= 0 ? 'start' : 'end', 'small');
+    g += G.arc(o[0], o[1], 26, 90, 90 - az, 'thin') + G.lab(o[0], o[1], 42, 90 - Math.min(az, 330) / 2, az + '°') + (q4 ? QH.slope(o[0], o[1], 90 - 90 * q4, 90 - az, base, 30, 34) : QH.slope(o[0], o[1], 0, 90 - az, 90 - base, 30, 40, true)) + G.T(o[0] - 8, o[1] + 16, 'A', 'end') + G.T(bx + (sinA >= 0 ? 8 : -8), by + 4, 'B', sinA >= 0 ? 'start' : 'end');
+    g += G.T(o[0] + (bx - o[0]) * 0.84 + (sinA >= 0 ? -10 : 10), o[1] + (by - o[1]) * 0.84 + 4, Dm + ' m', sinA >= 0 ? 'end' : 'start', 'small');
     var q = '如圖，已知 A 點坐標 N = ' + NA.toFixed(3) + ' m、E = ' + EA.toFixed(3) + ' m，AB 方位角 ' + az + '°、水平距離 ' + Dm + ' m，B 點的 ' + (ask === 'N' ? '縱坐標 N_B' : '橫坐標 E_B') + ' 為何？（sin' + base + '° = ' + sn(base) + '、cos' + base + '° = ' + cs(base) + '）';
     var ex = '縱距 ΔN = D cosφ = ' + Dm + ' × cos' + az + '° = ' + D(dN, 3) + ' m；橫距 ΔE = D sinφ = ' + Dm + ' × sin' + az + '° = ' + D(dE, 3) + ' m（第 ' + (q4 + 1) + ' 象限，' + ['N+、E+', 'N−、E+', 'N−、E−', 'N+、E−'][q4] + '）。\nN_B = ' + M(NA + dN) + '，E_B = ' + M(EA + dE) + '。';
     if (ask === 'N') return [q, O(M(NA + dN), [M(NA + dE), M(NA - dN), M(NA + Math.abs(dN)), M(NA - dE)]), ex, G.svg(260, 260, g)];

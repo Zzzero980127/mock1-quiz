@@ -66,8 +66,8 @@ window.GF = (function () {
     s += G.L(ax, ay, cx, cy, 'acc') + G.L(bx, by, cx, cy, 'acc') + G.C(cx, cy, 3, 'dot');
     s += G.L(cx, cy, cx, cy + 26) + G.Rc(cx - 30, cy + 26, 60, 30, 'fill2 acc') + G.T(cx, cy + 46, W + ' N');
     s += G.L(cx - 55, cy, cx + 55, cy, 'thin dash');
-    if (a) s += G.arc(cx, cy, 26, 180, 180 - a) + G.lab(cx, cy, 40, 180 - a / 2, a + '°');
-    if (b) s += G.arc(cx, cy, 26, 0, b) + G.lab(cx, cy, 40, b / 2, b + '°');
+    if (a) s += G.arc(cx, cy, 26, 180, 180 - a) + G.lab(cx, cy, 40, 180 - a / 2, a + '°') + QH.slope(cx, cy, 180, 180 - a, a, 50, Math.min(44, dl / Math.cos(rad(a)) - 62));
+    if (b) s += G.arc(cx, cy, 26, 0, b) + G.lab(cx, cy, 40, b / 2, b + '°') + QH.slope(cx, cy, 0, b, b, 50, Math.min(44, dr / Math.cos(rad(b)) - 62));
     s += a ? G.T(ax - 6, ay + 16, 'A', 'end') : G.T(ax + 6, ay - 6, 'A', 'start');
     s += b ? G.T(bx + 6, by + 16, 'B', 'start') : G.T(bx - 6, by - 6, 'B', 'end');
     s += G.T(cx + 10, cy + 18, 'C', 'start');
@@ -100,7 +100,7 @@ window.GF = (function () {
       var len = 40 + 62 * f.m / max, tx = Ox + len * f.c, ty = Oy - len * f.s;
       s += G.A(Ox, Oy, tx, ty, 'acc') + G.T(Ox + (len + 18) * f.c, Oy - (len + 18) * f.s + 4, 'F' + (i + 1) + ' = ' + f.m + ' N', 'middle', 'small');
       var rf = refX(f.th);
-      if (rf[1] % 90) { refs.push(rf[1]); var r = 20 + i * 9; s += G.arc(Ox, Oy, r, rf[0], f.th) + G.lab(Ox, Oy, r + 11, (rf[0] + f.th) / 2, rf[1] + '°'); }
+      if (rf[1] % 90) { refs.push(rf[1]); var r = 20 + i * 9; s += G.arc(Ox, Oy, r, rf[0], f.th) + G.lab(Ox, Oy, r + 11, (rf[0] + f.th) / 2, rf[1] + '°') + (fs.some(function (o) { var dd = Math.abs(((o.th - f.th) % 360 + 540) % 360 - 180); return o !== f && dd < 35; }) ? '' : QH.slope(Ox, Oy, rf[0], f.th, rf[1], r + 24, Math.min(40, len - r - 44))); }
       ex.push('F' + (i + 1) + '：x 分量 ' + D(f.m * f.c, 2) + '、y 分量 ' + D(f.m * f.s, 2));
     });
     var R = Math.sqrt(Rx * Rx + Ry * Ry), ask = pick(['Rx', 'Ry', 'R', 'R']), N = U('N'), q, op;
@@ -186,7 +186,7 @@ window.GF = (function () {
       vis = ((vis % 360) + 360) % 360;
       var rf = refX(vis);
       s += G.L(Ax - 40, Ay, Ax + 40, Ay, 'thin dash');
-      if (rf[1] % 90) s += G.arc(Ax, Ay, 22, rf[0], vis) + G.lab(Ax, Ay, 34, (rf[0] + vis) / 2, rf[1] + '°');
+      if (rf[1] % 90) s += G.arc(Ax, Ay, 22, rf[0], vis) + G.lab(Ax, Ay, 34, (rf[0] + vis) / 2, rf[1] + '°') + QH.slope(Ax, Ay, refX(vis + 180)[0], vis + 180, rf[1], 8, 40);
       s += G.dim(Math.min(Ox, Ax), Math.max(Ox, Ax), Oy + (sy > 0 ? 28 : -34), dx + ' m') + G.dimV(Ax + sx * 26, Math.min(Oy, Ay), Math.max(Oy, Ay), dy + ' m', sx);
       var Mu = U('kN·m'), dir = function (v) { return D(Math.abs(v), 2) + ' kN·m（' + (v > 0 ? '逆' : '順') + '時針）'; };
       var t2 = trigTxt([rf[1]]);

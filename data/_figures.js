@@ -46,7 +46,7 @@ window.QF = (function () {
       s += '<g transform="rotate(' + (-ang) + ' ' + r1(mx) + ' ' + r1(my) + ')">' + Rect(mx - 22, my - 26, 44, 26, 'acc fill2') + T(mx, my - 9, 'A') + '</g>';
       var bx = mx + Math.sin(rad(ang)) * 13, by = my - Math.cos(rad(ang)) * 13;
       s += C(258, top - 6, 8, 'acc') + L(bx, by, 252, top - 10) + L(266, top - 6, 266, top + 60) + Rect(254, top + 60, 24, 26, 'acc fill2') + T(266, top + 78, 'B');
-      s += T(x0 + 34, g - 6, ang + '°') + T(mx - 40, my - 36, W + ' kgf', 'end') + T(290, g - 10, 'μs = ' + mu, 'middle');
+      s += T(x0 + 34, g - 6, ang + '°') + QH.slope(x0, g, 0, ang, ang, base / Math.cos(rad(ang)) * 0.45 + 30, Math.min(60, base / Math.cos(rad(ang)) * 0.55 - 36), true) + T(mx - 40, my - 36, W + ' kgf', 'end') + T(290, g - 10, 'μs = ' + mu, 'middle');
       return svg(340, 220, s);
     },
     // 簡支梁：均佈載重 + 集中力
@@ -142,7 +142,7 @@ window.QF = (function () {
       var s = hatchH(10, 335, g) + P('M' + r1(x0) + ',' + g + ' L290,' + g + ' L290,' + r1(top) + ' z', 'fill');
       var mx = x0 + base * 0.55, my = g - Hh * 0.55;
       s += '<g transform="rotate(' + (-ang) + ' ' + r1(mx) + ' ' + r1(my) + ')">' + Rect(mx - 24, my - 28, 48, 28, 'acc fill2') + '</g>';
-      s += A(mx, my - 14, mx, my + 34) + T(mx + 6, my + 34, W + ' N', 'start') + T(x0 + 36, g - 6, ang + '°') + T(20, 24, 'μs = ' + mu, 'start');
+      s += A(mx, my - 14, mx, my + 34) + T(mx + 6, my + 34, W + ' N', 'start') + T(x0 + 36, g - 6, ang + '°') + QH.slope(x0, g, 0, ang, ang, base / Math.cos(rad(ang)) * 0.55 + 30, Math.min(60, base / Math.cos(rad(ang)) * 0.45 - 36), true) + T(20, 24, 'μs = ' + mu, 'start');
       return svg(345, 220, s);
     },
     // 簡支梁：兩個集中力

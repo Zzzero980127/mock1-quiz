@@ -43,10 +43,11 @@
         if (o.rope === 'up') {
           var wy = ay - (a[0] - wx) * Math.tan(rad(o.ang));
           s += L(wx, wy, a[0], ay) + L(a[0], ay, a[0] - 45, ay, 'thin dash') + arc(a[0], ay, 30, 180, 180 - o.ang) + T(a[0] - 40, ay - 6, o.ang + '°', 'end', 'small');
+          s += QH.slope(a[0], ay, 180, 180 - o.ang, o.ang, 44, Math.min(44, Math.sqrt((a[0] - wx) * (a[0] - wx) + (ay - wy) * (ay - wy)) - 50));
         }
-        var p = box[o.pull], px = p[0] + p[2], py = p[1] + p[3] / 2, len = 50, pa = o.pAng || 0;
+        var p = box[o.pull], px = p[0] + p[2], py = p[1] + p[3] / 2, pa = o.pAng || 0, len = pa ? 72 : 50;
         s += A(px, py, px + len * Math.cos(rad(pa)), py - len * Math.sin(rad(pa)), 'acc') + T(px + len * Math.cos(rad(pa)) + 2, py - len * Math.sin(rad(pa)) - 8, 'P', 'start');
-        if (pa) s += L(px, py, px + 42, py, 'thin dash') + arc(px, py, 26, 0, pa) + T(px + 30, py + 14, pa + '°', 'start', 'small');
+        if (pa) s += L(px, py, px + 42, py, 'thin dash') + arc(px, py, 26, 0, pa) + T(px + 30, py + 14, pa + '°', 'start', 'small') + QH.slope(px, py, 90, pa, 90 - pa, 10, 42);
         // 右上角列出各接觸面的 μs
         var lbl = [];
         for (var k = 0; k < n; k++) lbl.push((k < n - 1 ? nm[k] + '–' + nm[k + 1] : nm[k] + '–地面') + '：μs = ' + o.mu[k]);
@@ -57,7 +58,7 @@
       incline: function (o) {
         var th = o.th, g = 215, Lh = 270, bx = Lh * Math.cos(rad(th)), hy = Lh * Math.sin(rad(th)), x0 = 40;
         var s = hH(10, x0 + bx + 30, g) + P('M' + x0 + ',' + g + ' L' + r1(x0 + bx) + ',' + r1(g - hy) + ' L' + r1(x0 + bx) + ',' + g, 'thick');
-        s += arc(x0, g, 34, 0, th) + T(x0 + 40, g - 8, th + '°', 'start', 'small');
+        s += arc(x0, g, 34, 0, th) + T(x0 + 40, g - 8, th + '°', 'start', 'small') + QH.slope(x0, g, 0, th, th, 58, 56);
         var t = 0.55, px = x0 + t * bx, py = g - t * hy, ux = Math.cos(rad(th)), uy = -Math.sin(rad(th)), nx = -Math.sin(rad(th)), ny = -Math.cos(rad(th));
         s += '<g transform="translate(' + r1(px) + ',' + r1(py) + ') rotate(' + (-th) + ')">' + Rc(-26, -34, 52, 34, 'fill2 acc') + '</g>';
         var cx = px + nx * 17, cy = py + ny * 17;
@@ -65,9 +66,9 @@
         if (o.kind === 'hp') {
           s += A(cx - 95, cy, cx - 28, cy, 'acc') + T(cx - 100, cy + 4, 'P', 'end');
         } else {
-          var sx = cx + ux * 26, sy = cy + uy * 26, d = th + o.al;
-          s += A(sx, sy, sx + 70 * Math.cos(rad(d)), sy - 70 * Math.sin(rad(d)), 'acc') + T(sx + 74 * Math.cos(rad(d)), sy - 74 * Math.sin(rad(d)) - 4, 'T', 'start');
-          s += L(sx, sy, sx + ux * 55, sy + uy * 55, 'thin dash') + arc(sx, sy, 34, th, d) + T(sx + 40 * Math.cos(rad(th + o.al / 2)) + 4, sy - 40 * Math.sin(rad(th + o.al / 2)) + 4, o.al + '°', 'start', 'small');
+          var sx = cx + ux * 26, sy = cy + uy * 26, d = th + o.al, Lt = Math.max(56, Math.min(92, (sy - 18) / Math.max(0.2, Math.sin(rad(d))), Math.cos(rad(d)) > 0 ? (340 - sx) / Math.cos(rad(d)) : 92));
+          s += A(sx, sy, sx + Lt * Math.cos(rad(d)), sy - Lt * Math.sin(rad(d)), 'acc') + T(sx + (Lt + 4) * Math.cos(rad(d)), sy - (Lt + 4) * Math.sin(rad(d)) - 4, 'T', 'start');
+          s += L(sx, sy, sx + ux * 55, sy + uy * 55, 'thin dash') + arc(sx, sy, 34, th, d) + T(sx + 40 * Math.cos(rad(th + o.al / 2)) + 4, sy - 40 * Math.sin(rad(th + o.al / 2)) + 4, o.al + '°', 'start', 'small') + QH.slope(sx, sy, th + 90, d, 90 - o.al, 22, Lt - 36);
         }
         return svg(360, 230, s);
       }
