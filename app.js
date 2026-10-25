@@ -1,4 +1,4 @@
-/* 一模練習題庫 主程式
+/* 模考測驗網站 主程式
  * 題目格式（寫在 data/*.js）：
  *   靜態題：['主題', '題目', ['正解', '錯1', '錯2', '錯3'], '解析']
  *   類題產生器：{ t: '主題', g: function (R) { return ['題目', ['正解', ...], '解析']; } }
@@ -14,6 +14,12 @@
 
   // ---------- 更新日誌（新版本加在最上面） ----------
   var CHANGELOG = [
+    { v: '4.0', date: '2026-10-25', items: [
+      '網站改名「模考測驗網站」，新增「考試範圍」切換：一模範圍／二模範圍（二模包含一模的全部題目，再加二模新增的單元）',
+      '二模新增單元：國文 III 文言、白話；英文 III 單字（B3，共 176 個字，第一～六課）與二模文法（被動、使役與感官、強調句、關係詞）',
+      '二模新增單元：數學 式的運算、直線與圓、數列與級數、排列組合；力學 重心形心、慣性矩、應力應變；材料 木材；測量 角度測量（水平角、縱角、方位角、經緯儀誤差）；製圖 剖面、建築圖識圖與法規、尺度標註',
+      '二模新單元也有簡單版、困難版（模考類似題）、統測區三種；作答紀錄、錯題本、計算區不受影響（題目編號不變，新單元排在各科最後）'
+    ] },
     { v: '3.2', date: '2026-10-13', items: [
       '計算區新增「📐 圖形」：直線、箭頭、圓、三角形、直角三角形、矩形，按住拖曳就能畫（可換顏色、可復原）',
       '電腦上按住 Shift：直線鎖 15° 倍數、矩形變正方形、三角形變正三角形',
@@ -179,20 +185,20 @@
   SUBJ.forEach(function (s, si) {
     s.units.forEach(function (u, ui) {
       (u.qs || []).forEach(function (it, qi) {
-        TEMPLATES.push({ id: s.id + '-' + ui + '-' + qi, si: si, ui: ui, tag: Array.isArray(it) ? it[0] : it.t, kind: Array.isArray(it) ? 's' : 'g', item: it });
+        TEMPLATES.push({ id: s.id + '-' + ui + '-' + qi, m: u.m || 1, si: si, ui: ui, tag: Array.isArray(it) ? it[0] : it.t, kind: Array.isArray(it) ? 's' : 'g', item: it });
       });
       if (u.gen) {
         u.gen().forEach(function (it) {
-          TEMPLATES.push({ id: s.id + '-' + ui + '-' + it.id, si: si, ui: ui, tag: it[0], kind: 's', item: it });
+          TEMPLATES.push({ id: s.id + '-' + ui + '-' + it.id, m: u.m || 1, si: si, ui: ui, tag: it[0], kind: 's', item: it });
         });
       }
       // 困難版（統測類似題）：id 多一個 h，和簡單版的紀錄分開
       (u.hard || []).forEach(function (it, qi) {
-        TEMPLATES.push({ id: s.id + '-' + ui + '-h' + qi, si: si, ui: ui, tag: Array.isArray(it) ? it[0] : it.t, kind: Array.isArray(it) ? 's' : 'g', item: it, hard: true });
+        TEMPLATES.push({ id: s.id + '-' + ui + '-h' + qi, m: u.m || 1, si: si, ui: ui, tag: Array.isArray(it) ? it[0] : it.t, kind: Array.isArray(it) ? 's' : 'g', item: it, hard: true });
       });
       // 統測區（仿 111～115 統測）：id 多一個 t，紀錄獨立
       (u.tc || []).forEach(function (it, qi) {
-        TEMPLATES.push({ id: s.id + '-' + ui + '-t' + qi, si: si, ui: ui, tag: Array.isArray(it) ? it[0] : it.t, kind: Array.isArray(it) ? 's' : 'g', item: it, tc: true });
+        TEMPLATES.push({ id: s.id + '-' + ui + '-t' + qi, m: u.m || 1, si: si, ui: ui, tag: Array.isArray(it) ? it[0] : it.t, kind: Array.isArray(it) ? 's' : 'g', item: it, tc: true });
       });
     });
   });
@@ -204,7 +210,9 @@
   function curMode() { return store.mode === 'hard' || store.mode === 'tc' ? store.mode : 'easy'; }
   function isHardMode() { return curMode() === 'hard'; }
   function tplMode(t) { return t.hard ? 'hard' : t.tc ? 'tc' : 'easy'; }
-  function inMode(t) { return tplMode(t) === curMode(); }
+  // 考試範圍：1 = 一模、2 = 二模（含一模）；單元的 m 是「第幾模才加入」，沒寫就是一模
+  function curMock() { return store.mock === 1 ? 1 : 2; }
+  function inMode(t) { return tplMode(t) === curMode() && t.m <= curMock(); }
   var MODE_TAG = { hard: '困難', tc: '統測' };
 
   // 顯示用：跳脫 HTML，並把「a→」「AB→」改成箭頭在字母上方的向量寫法
@@ -282,16 +290,19 @@
   }
 
   function renderHome() {
+    $('mock1').classList.toggle('on', curMock() === 1);
+    $('mock2').classList.toggle('on', curMock() === 2);
+    $('subText').textContent = curMock() === 2 ? '115 學年度第二次模擬考（12/15～12/16）・依範圍表與《二模全科筆記》出題' : '115 學年度第一次模擬考（10/19～10/20）・依範圍表與《一模全科筆記》出題';
     $('modeEasy').classList.toggle('on', curMode() === 'easy');
     $('modeHard').classList.toggle('on', curMode() === 'hard');
     $('modeTc').classList.toggle('on', curMode() === 'tc');
-    $('modeHint').textContent = curMode() === 'tc' ? '統測區：仿 111～115 學年度統測（土木與建築群、共同科目）的題型與出題方式，只出一模範圍內的單元，部分題目附圖。紀錄與其他模式分開。' : isHardMode() ? '困難版：仿歷屆一模模考題型，多步驟計算與綜合判斷。紀錄與簡單版分開。' : '簡單版：基本觀念與單一公式，適合先熟悉重點。';
+    $('modeHint').textContent = curMode() === 'tc' ? '統測區：仿 111～115 學年度統測（土木與建築群、共同科目）的題型與出題方式，只出所選考試範圍內的單元，部分題目附圖。紀錄與其他模式分開。' : isHardMode() ? '困難版：仿歷屆模考題型，多步驟計算與綜合判斷。紀錄與簡單版分開。' : '簡單版：基本觀念與單一公式，適合先熟悉重點。';
     var g = $('subjGrid'); g.innerHTML = '';
     SUBJ.forEach(function (s, si) {
       var cnt = TEMPLATES.filter(function (t) { return t.si === si && inMode(t); }).length;
       var d = document.createElement('div');
       d.className = 'subj' + (sel[s.id].on ? ' on' : '');
-      d.innerHTML = '<div class="nm">' + esc(s.name) + '</div><div class="meta">' + esc(s.desc || '') + '・' + cnt + ' 題型</div><div class="acc">正確率：' + accText(si) + '</div>';
+      d.innerHTML = '<div class="nm">' + esc(s.name) + '</div><div class="meta">' + esc((curMock() === 2 && s.desc2) || s.desc || '') + '・' + cnt + ' 題型</div><div class="acc">正確率：' + accText(si) + '</div>';
       d.onclick = function () { sel[s.id].on = !sel[s.id].on; save(); renderHome(); };
       g.appendChild(d);
     });
@@ -693,6 +704,8 @@
   // ---------- 綁定事件 ----------
   $('allOn').onclick = function () { SUBJ.forEach(function (s) { sel[s.id].on = true; }); save(); renderHome(); };
   $('allOff').onclick = function () { SUBJ.forEach(function (s) { sel[s.id].on = false; }); save(); renderHome(); };
+  $('mock1').onclick = function () { store.mock = 1; save(); renderHome(); };
+  $('mock2').onclick = function () { store.mock = 2; save(); renderHome(); };
   $('modeEasy').onclick = function () { store.mode = 'easy'; save(); renderHome(); };
   $('modeHard').onclick = function () { store.mode = 'hard'; save(); renderHome(); };
   $('modeTc').onclick = function () { store.mode = 'tc'; save(); renderHome(); };
@@ -750,8 +763,8 @@
   var DEV = (function () { try { var s = location.search; if (/[?&]dev=0/.test(s)) localStorage.removeItem('quizDev'); else if (/[?&]dev(=1)?(&|$)/.test(s)) localStorage.setItem('quizDev', '1'); return localStorage.getItem('quizDev') === '1'; } catch (e) { return false; } })();
   (function () { var h = document.querySelector('#home h1'), n = 0, t; if (!h) return; h.addEventListener('click', function () { n++; clearTimeout(t); t = setTimeout(function () { n = 0; }, 2500); if (n >= 5) { try { if (DEV) localStorage.removeItem('quizDev'); else localStorage.setItem('quizDev', '1'); } catch (e) {} location.reload(); } }); })();
   var latest = CHANGELOG[0];
-  if (DEV) $('verText').textContent = '目前版本 v' + latest.v + '（' + latest.date + '）';
-  else { var vt = $('verText'); var pv = vt.previousSibling; if (pv && pv.nodeType === 3) pv.nodeValue = pv.nodeValue.replace(/・$/, ''); vt.parentNode.removeChild(vt); $('clBtn').style.display = 'none'; $('clCard').style.display = 'none'; }
+  if (DEV) $('verText').textContent = '・目前版本 v' + latest.v + '（' + latest.date + '）';
+  else { $('clBtn').style.display = 'none'; $('clCard').style.display = 'none'; }
   $('clList').innerHTML = CHANGELOG.map(function (c, i) {
     return '<div class="cl"><span class="v">v' + esc(c.v) + '</span> <span class="muted">' + esc(c.date) + '</span>' + (i === 0 ? '<span class="new">最新</span>' : '') +
       '<ul>' + c.items.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul></div>';
